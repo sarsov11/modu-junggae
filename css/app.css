@@ -164,3 +164,11 @@ table.grid tr.skip td{color:var(--ink-3)}
 .toggle button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);font-weight:700}
 .empty{padding:24px;text-align:center;color:var(--ink-3)}
 @media (min-width:720px){ body{font-size:16.5px} .q{font-size:18px} }
+
+/* 교리(2026-09-23) — 합격 설계도 카드·유형 표시 */
+.plancard{display:block;text-decoration:none;color:inherit}
+.plancard .goals{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.goal{font-size:12.5px;border-radius:999px;padding:3px 10px;background:#f1f3f5}
+.goal b{font-size:14px}
+.goal.g-up{background:#ebfbee;color:#2b8a3e}.goal.g-keep{background:#e7f5ff;color:#1864ab}.goal.g-cut{background:#fff5f5;color:#c92a2a}
+.chip.case{background:#fff3bf;color:#8a6d00}.chip.calc{background:#e7f5ff;color:#1864ab}
