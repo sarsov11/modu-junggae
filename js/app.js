@@ -54,6 +54,49 @@
     el.onerror = function () { $view.innerHTML = '<div class="empty">문항 자료를 못 불러왔습니다.</div>'; };
     document.head.appendChild(el);
   }
+  var C = window.C = window.C || {};
+  var 개념장 = {}; (M.개념장 || []).forEach(function (k) { 개념장[k] = 1; });
+  function 과목개념(code, cb) {
+    if (C[code]) return cb(C[code]);
+    var el = document.createElement("script");
+    el.src = "data/c_" + code + ".js?v=" + M.버전;
+    el.onload = function () { cb(C[code] || {}); };
+    el.onerror = function () { $view.innerHTML = '<div class="empty">개념 자료를 못 불러왔습니다.</div>'; };
+    document.head.appendChild(el);
+  }
+  function 등급칩(g) { return g ? '<span class="gchip g' + g + '">' + g + "</span>" : ""; }
+  function 블록(b) {
+    var t = b.종류;
+    if (t === "요점") return '<div class="cpt">' + 등급칩(b.등급) + '<div><b class="kw">' + esc(b.제목) + "</b> " + esc(b.글) + "</div></div>";
+    if (t === "조문") return '<div class="law"><span class="ln">' + esc(b.조) + "</span>" + esc(b.글) + "</div>";
+    if (t === "비유") return '<div class="tip"><span class="ti">비유 팁</span><div>' + esc(b.글) + "</div></div>";
+    if (t === "참고") return '<div class="ref"><span class="rt">참고</span><div>' + esc(b.글) + "</div></div>";
+    if (t === "비교") return '<div class="big"><div class="big-h">' + esc(b.제목 || "한 번에 비교") + '</div><div class="tblwrap"><table><tr>' +
+      (b.머리 || []).map(function (x) { return "<th>" + esc(x) + "</th>"; }).join("") + "</tr>" +
+      (b.행 || []).map(function (r) { return "<tr>" + r.map(function (x) { return "<td>" + esc(x) + "</td>"; }).join("") + "</tr>"; }).join("") +
+      "</table></div>" + (b.결론 ? '<div class="one">' + esc(b.결론) + "</div>" : "") + "</div>";
+    if (t === "구조") return '<div class="tree"><div class="tr-root">' + esc(b.제목) + '</div><div class="tr-kids">' +
+      (b.갈래 || []).map(function (g) { return '<div class="tr-g"><b>' + esc(g.이름) + "</b>" + (g.항목 || []).map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div>"; }).join("") +
+      "</div>" + (b.결론 ? '<div class="one">' + esc(b.결론) + "</div>" : "") + "</div>";
+    if (t === "소제목") return '<h4 class="csub">' + esc(b.글) + "</h4>";
+    return "";
+  }
+  function 개념(code) {
+    탭("tree");
+    var c = LEAF[code];
+    if (!c) { location.hash = "#/home"; return; }
+    과목개념(c.과목, function (all) {
+      var d = all[code];
+      if (!d) { $view.innerHTML = '<div class="empty">이 단원은 개념 정리가 아직 없습니다. <a href="#/study/' + code + '">기출 풀기</a></div>'; return; }
+      var h = '<div class="qhead"><a class="tiny" href="#/tree/' + c.과목 + '">← ' + esc(SUBJ[c.과목].약칭) + ' 스킬트리</a><a class="tiny" href="#/study/' + code + '">기출 ' + c.문항.length + "문항 ›</a></div>" +
+        '<div class="card"><h3>' + esc(c.이름) + '</h3><p class="tiny" style="margin:4px 0 0">' + esc(c.편이름) + " · 회당 " + c.회당.toFixed(1) + "문항</p>" +
+        (d.요약 ? '<p class="csum">' + esc(d.요약) + "</p>" : "") + "</div>" +
+        '<article class="card concept">' + (d.블록 || []).map(블록).join("") + "</article>" +
+        '<a class="btn" style="width:100%" href="#/study/' + code + '">이 단원 기출 풀기 (' + c.문항.length + "문항)</a>" +
+        '<p class="tiny" style="margin-top:10px">등급 = 제27~36회 중 이 내용이 나온 회차 수 · S 8회↑ · A 4~7 · B 2~3 · C 1</p>';
+      $view.innerHTML = h; window.scrollTo(0, 0);
+    });
+  }
   function 리프통계(c) {
     var ids = c.문항, done = 0, ok = 0;
     ids.forEach(function (id) { var r = REC[id]; if (r) { done++; if (r.ok) ok++; } });
@@ -182,7 +225,7 @@
       h += '<div class="pyeon"><h3>' + esc(p.이름) + " <small>" + pct(편비중, 1) + "</small></h3></div><div class=\"trunk\">";
       p.장.forEach(function (c) {
         var st = 리프통계(c);
-        h += '<a class="node' + (c.비추천 ? " skip" : "") + (st.이해도 >= 0.8 ? " done" : "") + '" href="#/study/' + c.코드 + '">' +
+        h += '<a class="node' + (c.비추천 ? " skip" : "") + (st.이해도 >= 0.8 ? " done" : "") + '" href="#/' + (개념장[c.코드] && !st.푼 ? "concept" : "study") + "/" + c.코드 + '">' +
           '<div class="row between"><span class="nm grow">' + esc(c.이름) + "</span>" + spark(c.회차별) + "</div>" +
           '<div class="weight"><i style="width:' + (mx ? 100 * c.비중 / mx : 0) + '%"></i></div>' +
           '<div class="meta"><span class="chip">회당 ' + c.회당.toFixed(1) + "문항 · " + pct(c.비중, 1) + "</span>" +
@@ -241,7 +284,7 @@
       var st = 리프통계(c);
       var 바뀐선지 = {};
       (it.f && it.f.수정 || []).forEach(function (m) { var mm = /^선지(\d)/.exec(m.위치); if (mm) 바뀐선지[+mm[1] - 1] = 1; });
-      var h = '<div class="qhead"><a class="tiny" href="#/tree/' + c.과목 + '">← ' + esc(SUBJ[c.과목].약칭) + " 스킬트리</a><span class=\"tiny\">" + (k + 1) + " / " + ids.length + "</span></div>" +
+      var h = '<div class="qhead"><a class="tiny" href="#/tree/' + c.과목 + '">← ' + esc(SUBJ[c.과목].약칭) + " 스킬트리</a>" + (개념장[c.코드] ? '<a class="tiny" href="#/concept/' + c.코드 + '">개념 보기</a>' : "") + "<span class=\"tiny\">" + (k + 1) + " / " + ids.length + "</span></div>" +
         '<div class="card"><div class="row between"><h3 class="grow">' + esc(c.이름) + "</h3>" +
         (c.비추천 ? '<span class="chip skip">학습 후순위</span>' : '<span class="chip">비중 ' + pct(c.비중, 1) + "</span>") + "</div>" +
         '<div class="bar" style="margin-top:8px"><i style="width:' + (st.전체 ? 100 * st.맞힌 / st.전체 : 0) + '%"></i></div>' +
@@ -405,6 +448,7 @@
     var p = (location.hash || "#/home").slice(2).split("/");
     try {
       if (p[0] === "tree") 트리(decodeURIComponent(p[1] || ""));
+      else if (p[0] === "concept") 개념(decodeURIComponent(p[1] || ""));
       else if (p[0] === "study") 문제(decodeURIComponent(p[1] || ""), p[2] ? +p[2] : null);
       else if (p[0] === "analysis") 분석(decodeURIComponent(p[1] || ""));
       else if (p[0] === "fix") 법령();

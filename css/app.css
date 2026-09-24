@@ -172,3 +172,28 @@ table.grid tr.skip td{color:var(--ink-3)}
 .goal b{font-size:14px}
 .goal.g-up{background:#ebfbee;color:#2b8a3e}.goal.g-keep{background:#e7f5ff;color:#1864ab}.goal.g-cut{background:#fff5f5;color:#c92a2a}
 .chip.case{background:#fff3bf;color:#8a6d00}.chip.calc{background:#e7f5ff;color:#1864ab}
+
+/* 개념 화면 (2026-09-25) */
+.csum{margin:10px 0 0;font-weight:700;line-height:1.6}
+.concept{line-height:1.7}
+.cpt{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+.cpt .kw{font-size:1.08em;font-weight:900}
+.gchip{flex:none;display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;color:#fff;font-weight:900;font-size:13px;margin-top:2px}
+.gS{background:#e03131}.gA{background:#f76707}.gB{background:#1c7ed6}.gC{background:#868e96}
+.csub{margin:18px 0 6px;font-size:1.05em;border-bottom:2px solid var(--accent);padding-bottom:4px}
+.law{border-left:4px solid #495057;background:rgba(73,80,87,.07);padding:8px 12px;margin:10px 0;font-size:.95em;line-height:1.7}
+.law .ln{font-weight:900;font-size:.8em;background:#495057;color:#fff;border-radius:5px;padding:1px 6px;margin-right:6px}
+.tip{display:flex;gap:10px;align-items:flex-start;background:rgba(247,103,7,.08);border:1.5px dashed #f76707;border-radius:12px;padding:9px 12px;margin:10px 0}
+.tip .ti{flex:none;font-weight:900;font-size:.78em;color:#fff;background:#f76707;border-radius:6px;padding:2px 7px;margin-top:3px}
+.ref{display:flex;gap:8px;align-items:baseline;font-size:.92em;background:rgba(73,80,87,.06);border-radius:8px;padding:6px 10px;margin:8px 0}
+.ref .rt{flex:none;font-size:.75em;font-weight:900;border:1.2px solid #868e96;border-radius:5px;padding:0 5px}
+.big{border:2px solid currentColor;border-radius:12px;overflow:hidden;margin:12px 0}
+.big-h{background:var(--accent);color:#fff;font-weight:900;padding:6px 12px}
+.big table{width:100%;border-collapse:collapse;font-size:.9em}.big th{text-align:left;padding:6px;border-bottom:1.5px solid currentColor}
+.big td{padding:6px;border-bottom:1px solid rgba(128,128,128,.25);vertical-align:top}.big td:first-child{font-weight:900}
+.big .one,.tree .one{background:rgba(255,212,59,.18);font-weight:800;padding:6px 12px}
+.tree{border:1.5px solid rgba(128,128,128,.35);border-radius:12px;padding:12px;margin:12px 0}
+.tr-root{display:block;margin:0 auto 10px;background:var(--accent);color:#fff;border-radius:10px;padding:5px 14px;width:max-content;max-width:100%;font-weight:900;text-align:center}
+.tr-kids{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.tr-g{border:2px solid currentColor;border-radius:10px;padding:8px}.tr-g b{display:block;text-align:center;margin-bottom:4px}
+.tr-g span{display:block;font-size:.88em;padding:2px 0;border-top:1px dashed rgba(128,128,128,.3)}
