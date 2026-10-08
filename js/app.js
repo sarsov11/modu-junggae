@@ -175,14 +175,14 @@
         "<div><b>" + c.문항.length + '문항</b><span>최근 10회 기출</span></div>' +
         "<div><b>" + t.st.맞힌 + "/" + t.st.전체 + '</b><span>맞힌 문항</span></div></div>' +
         '<a class="btn" style="width:100%" href="#/study/' + c.코드 + '">시작하기</a>' +
-        '<details class="more"><summary>다른 단원이 더 필요해요 ▾</summary><div class="list">' +
+        '<details class="more"><summary>다음 추천 단원 ▾</summary><div class="list">' +
         후보.slice(1, 7).map(function (x) {
           return '<a href="#/study/' + x.c.코드 + '"><span>' + esc(x.c.이름) + ' <span class="tiny">' + esc(x.s.약칭) + "</span></span><span class=\"tiny\">회당 " + x.c.회당.toFixed(1) + "문항</span></a>";
         }).join("") + "</div></details></section>";
     } else {
       h += '<section class="card today"><div class="eyebrow">오늘 할 것</div><h2>추천 단원을 전부 80% 이상 맞혔습니다</h2><p class="sub">스킬트리에서 후순위 단원이나 틀린 문항을 다시 풀어 보세요.</p></section>';
     }
-    h += '<a class="card plancard" href="#/plan"><div class="row between"><b>합격 설계도</b><span class="tiny">과목별 역할로 푼다 ›</span></div>' +
+    h += '<a class="card plancard" href="#/plan"><div class="row between"><b>합격 설계도</b><span class="tiny">과목별 목표 점수 ›</span></div>' +
       '<div class="goals">' + 대상과목().map(function (s) {
         var g = 교리[s.코드]; return g ? '<span class="goal g-' + (g.역할 === "득점" ? "up" : g.역할 === "방어" ? "keep" : "cut") + '">' + esc(s.약칭) + " <b>" + g.목표 + "</b></span>" : "";
       }).join("") + "</div></a>";
@@ -217,7 +217,7 @@
       return '<a class="' + (x.코드 === s.코드 ? "on" : "") + '" href="#/tree/' + x.코드 + '">' + esc(x.약칭) + "</a>";
     }).join("") + "</div>";
     h += '<div class="card"><div class="row between"><h2>' + esc(s.이름) + '</h2><span class="chip">' + 차이름[s.차] + ' · ' + s.시험문항 + '문항</span></div>' +
-      '<p class="sub" style="margin:6px 0 0">막대 굵기 = 최근 10회 출제비중, 작은 막대 = 회차별 출제 추이. 점선 카드는 <b>학습 후순위</b>(비추천) 단원입니다 — 문제는 그대로 풀 수 있습니다.</p></div>';
+      '<p class="sub" style="margin:6px 0 0">막대 굵기 = 최근 10회 출제비중, 작은 막대 = 회차별 출제 추이. 점선 카드는 <b>학습 후순위</b>(비추천) 단원입니다. 후순위 단원도 문제는 똑같이 풀 수 있습니다.</p></div>';
     var mx = 0;
     s.편.forEach(function (p) { p.장.forEach(function (c) { mx = Math.max(mx, c.비중); }); });
     s.편.forEach(function (p) {
@@ -314,7 +314,7 @@
           REC[it.i] = { ok: ok, t: Date.now(), n: r.n + 1 };
           쓰기(REC);
           var a = "";
-          a += '<div class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "맞았습니다." : "정답은 " + it.a.map(function (x) { return NO[x - 1]; }).join(", ") + "입니다. 다시 풀 기회는 이 단원에 남겨 둡니다.") +
+          a += '<div class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "맞았습니다." : "정답은 " + it.a.map(function (x) { return NO[x - 1]; }).join(", ") + "입니다. 틀린 문항은 다음에 이 단원을 열면 안 푼 문항 다음 순서로 다시 나옵니다.") +
             (it.m ? ' <span class="tiny">(' + esc(it.m) + ")</span>" : "") + "</div>";
           if (it.f) {
             a += '<div class="lawnote"><h4>' + (it.f.판정 === "폐기권고" ? "현행 법령으로는 성립하지 않는 문항입니다" : M.시험.일.replace(/-/g, ".") + " 시행 법령에 맞춰 고친 곳") + "</h4>" +
@@ -368,7 +368,7 @@
     var 후 = 리프.filter(function (c) { return c.비추천; });
     h += '<section class="card"><h3>학습 후순위(비추천) 단원</h3>' + (후.length ? 후.map(function (c) {
       return '<div class="fixitem"><b>' + esc(c.이름) + '</b><div class="tiny">' + esc(c.비추천사유) + "</div></div>";
-    }).join("") : '<p class="sub">이 과목은 버릴 단원 없이 고르게 가져가는 편이 낫습니다.</p>') + "</section>";
+    }).join("") : '<p class="sub">이 과목에는 후순위로 미룰 단원이 없습니다.</p>') + "</section>";
     $view.innerHTML = h;
   }
 
@@ -430,7 +430,7 @@
   /* ── 화면: 합격 설계도 ── */
   function 설계도() {
     탭("home");
-    var h = '<section class="card"><h2 style="margin:0 0 6px">합격 설계도</h2><p class="sub" style="margin:0 0 10px">과목마다 40점 이상 · 평균 60점 이상. 전 과목 만점이 아니라 과목별 역할로 푼다.</p>' +
+    var h = '<section class="card"><h2 style="margin:0 0 6px">합격 설계도</h2><p class="sub" style="margin:0 0 10px">과목마다 40점 이상, 평균 60점 이상이면 합격입니다. 과목마다 득점·방어·과락 방어 가운데 하나를 맡기고 목표 점수를 따로 잡았습니다.</p>' +
       '<img src="전략/합격설계도.png?v=' + M.버전 + '" alt="합격 설계도" style="width:100%;border-radius:12px"></section>';
     [1, 2].forEach(function (cha) {
       var ss = M.과목.filter(function (s) { return s.차 === cha && 교리[s.코드]; });
@@ -439,7 +439,7 @@
         return '<div class="fixitem"><b>' + esc(s.이름) + '</b> <span class="chip">목표 ' + g.목표 + " · " + g.역할 + '</span><div class="tiny">' + esc(g.전술) + "</div></div>";
       }).join("") + "</section>";
     });
-    h += '<p class="tiny">오늘 화면의 추천은 이 설계도를 따릅니다 — 득점 과목을 먼저 권하고, 목표에 가까워진 과목은 덜 권합니다. 근거: 제27~36회 기출 실측.</p>';
+    h += '<p class="tiny">오늘 화면은 득점 과목을 먼저 추천하고, 정답률이 목표에 가까워진 과목은 덜 추천합니다. 목표 점수는 제27~36회 기출을 세어서 잡았습니다.</p>';
     $view.innerHTML = h;
   }
 
