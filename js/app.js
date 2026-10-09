@@ -279,6 +279,13 @@
       h += "</div>";
     });
     $view.innerHTML = h;
+    /* 처음 열면 게임 튜토리얼처럼 한 곳씩 비추며 쓰는 법을 짚는다(2026-10-09, js/zzcoach.js). 한 번 보면 다시 안 뜬다 */
+    var 안내 = function () { if (window.ZZCOACH) ZZCOACH.run("junggae.tree", [
+      { el: '.navlinks a[data-tab="home"]', text: "오늘 탭에서 추천 단원 하나로 바로 시작할 수 있음" },
+      { el: ".node:not(.skip)", text: "단원 카드. 개념 정리가 있는 단원은 처음에 개념부터, 풀어 본 단원은 기출 문제로 열림" },
+      { el: ".node:not(.skip) .weight", text: "굵은 막대는 최근 10회 출제비중, 이름 오른쪽 작은 막대는 회차별 출제 추이. 점선 카드는 학습 후순위 단원" }
+    ], { delay: 900 }); };
+    if (document.readyState === "complete") 안내(); else window.addEventListener("load", 안내);
   }
 
   /* ── 화면: 문제 ── */
@@ -304,6 +311,7 @@
   }
   function 문제(code, 번호) {
     탭("tree");
+    var 세션 = { n: 0, ok: 0, 창: 0, 창ok: 0 };   /* 10문항마다(또는 단원 끝) 별 결산 */
     var c = LEAF[code];
     if (!c) { location.hash = "#/home"; return; }
     과목문항(c.과목, function (all) {
@@ -354,6 +362,12 @@
             else if (jj === j) x.setAttribute("data-s", "no");
             x.setAttribute("disabled", "");
           });
+          if (window.ZZ) { if (ok) ZZ.ok(b); else ZZ.no(b); }
+          세션.n++; 세션.창++; if (ok) { 세션.ok++; 세션.창ok++; }
+          if (세션.창 >= 10 || k === ids.length - 1) {
+            var 률 = 세션.창ok / 세션.창; 세션.창 = 0; 세션.창ok = 0;
+            if (window.ZZ) ZZ.stars(률 >= 1 ? 3 : 률 >= 0.7 ? 2 : 률 >= 0.4 ? 1 : 0);
+          }
           var r = REC[it.i] || { n: 0 };
           REC[it.i] = { ok: ok, t: Date.now(), n: r.n + 1 };
           쓰기(REC);
@@ -368,11 +382,12 @@
               }).join("") + "</ul>" + (it.f.정답변경사유 ? '<div class="src">정답: ' + esc(it.f.정답변경사유) + "</div>" : "") + "</div>";
           }
           a += '<div class="navq">' + (k > 0 ? '<button class="btn ghost" id="prev">이전</button>' : "") +
-            (k < ids.length - 1 ? '<button class="btn" id="next">다음 문항</button>' : '<a class="btn" href="#/home">오늘 화면으로</a>') + "</div>";
+            (k < ids.length - 1 ? '<button class="btn" id="next">다음 문항</button>' : '<a class="btn" href="#/tree/' + c.과목 + '">스킬트리로</a><a class="btn ghost" href="#/home">오늘 화면으로</a>') + "</div>";
           document.getElementById("after").innerHTML = a;
           var nx = document.getElementById("next"), pv = document.getElementById("prev");
           if (nx) nx.onclick = function () { 그리기(ids, k + 1); };
           if (pv) pv.onclick = function () { 그리기(ids, k - 1); };
+          var vd = $view.querySelector(".verdict"); if (vd && vd.scrollIntoView) vd.scrollIntoView({ behavior: "smooth", block: "center" });
         });
       });
     }

@@ -314,8 +314,9 @@ details.more[open] summary::after{content:" ▴"}
 .lawnote .was{color:var(--ink-4);text-decoration:line-through;text-decoration-color:var(--law)}
 .lawnote .now{color:var(--ink);font-weight:600}
 .lawnote .src{color:var(--ink-3);font-size:13.5px}
-.navq{display:flex;gap:8px;margin-top:16px}
-.navq .btn{flex:1}
+.navq{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:sticky;bottom:14px;z-index:5}
+@media(max-width:900px){.navq{bottom:calc(66px + env(safe-area-inset-bottom,0px))}}
+.navq .btn{flex:1 1 auto;white-space:nowrap}
 
 /* 개념 */
 .concept{line-height:1.75;color:var(--ink-2)}
