@@ -1,31 +1,40 @@
 <!doctype html>
-<html lang="ko" data-skin="jijeok">
+<html lang="ko" data-skin="white">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>모두의 중개사</title>
 <meta name="description" content="공인중개사 기출 10회분을 단원으로 잘라 스킬트리로 공부하는 곳. 현행 법령 기준으로 고친 기출.">
-<meta name="theme-color" content="#1f6f5c">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800;900&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="css/app.css?v=10081048">
 <script>
-try{var s=localStorage.getItem("mj.skin");if(s)document.documentElement.setAttribute("data-skin",s)}catch(e){}
+/* 옷: white(기본) · paper · night — 테라러닝 공통. 예전 옷 이름은 옮겨 입힌다. */
+try{var s=localStorage.getItem("mj.skin"),old={jijeok:"white",deunggi:"paper",bam:"night"};if(old[s])s=old[s];if(s!=="paper"&&s!=="night")s="white";document.documentElement.setAttribute("data-skin",s)}catch(e){}
 </script>
+<link rel="stylesheet" href="css/app.css?v=10091400">
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="#/home"><span class="mark" aria-hidden="true"></span><b>모두의 중개사</b></a>
-  <div class="dday" id="dday"></div>
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="#/home"><span class="dot"></span>모두의 중개사<small>테라러닝</small></a>
+    <nav class="navlinks" aria-label="화면">
+      <a href="#/home" data-tab="home">오늘</a>
+      <a href="#/tree" data-tab="tree">스킬트리</a>
+      <a href="#/analysis" data-tab="analysis">출제분석</a>
+      <a href="#/fix" data-tab="fix">법령반영</a>
+      <a href="#/settings" data-tab="settings">설정</a>
+    </nav>
+    <div class="navact">
+      <div class="dday" id="dday"></div>
+      <button class="skinbtn" id="skinbtn" type="button" title="화면 색 바꾸기"></button>
+    </div>
+  </div>
 </header>
 <main id="view" class="wrap" aria-live="polite"></main>
-<nav class="tabs" aria-label="화면">
-  <a href="#/home" data-tab="home"><i class="ic ic-home"></i><span>오늘</span></a>
-  <a href="#/tree" data-tab="tree"><i class="ic ic-tree"></i><span>스킬트리</span></a>
-  <a href="#/analysis" data-tab="analysis"><i class="ic ic-chart"></i><span>출제분석</span></a>
-  <a href="#/fix" data-tab="fix"><i class="ic ic-law"></i><span>법령반영</span></a>
-  <a href="#/settings" data-tab="settings"><i class="ic ic-gear"></i><span>설정</span></a>
-</nav>
 <script src="data/meta.js?v=10081048"></script>
-<script src="js/app.js?v=10081048"></script>
+<script src="js/app.js?v=10091400"></script>
 </body>
 </html>
