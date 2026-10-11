@@ -414,13 +414,37 @@
   }
   /* 문항 한 장 — 단원 풀이·오답 다시가 같이 쓴다.
      o = { ids, 찾기(id)→문항, 머리(it,k,n)→html, 필드:"s"|"w", 끝(k)→마지막 문항 뒤 단추 html, 단원:c(선택) } */
+  /* 실전 모의 해설 — 07_모의고사 원고(한줄·보기판정·선지판정·근거·개념 표/흐름/비교/계산·함정·개정) */
+  function 실전해설(it) {
+    var x = it.x, h = '<div class="mx">';
+    function 판(p) { return p === "옳음" ? '<b class="mx-o">O</b>' : p === "틀림" ? '<b class="mx-x">X</b>' : '<b class="mx-n">·</b>'; }
+    if (x.한줄) h += '<p class="mx-one">' + esc(x.한줄) + "</p>";
+    if (x.보기판정) h += "<h4>보기 판정</h4><ul class=\"mx-ox\">" + x.보기판정.map(function (b) { return "<li>" + 판(b.판정) + "<span><b>" + esc(b.기호) + "</b> " + esc(b.설명 || "") + "</span></li>"; }).join("") + "</ul>";
+    if (x.선지) h += "<h4>선지별 판정</h4><ul class=\"mx-ox\">" + x.선지.map(function (s) { return '<li class="' + (it.a.indexOf(s.번호) >= 0 ? "mx-ans" : "") + '">' + 판(s.판정) + "<span><b>" + (NO[s.번호 - 1] || s.번호) + "</b> " + esc(s.설명 || "") + "</span></li>"; }).join("") + "</ul>";
+    if (x.근거) h += "<h4>근거</h4>" + x.근거.map(function (g) {
+      var t = g.법령 ? g.법령 + " " + (g.조문 || "") : g.판례 ? "판례 " + g.판례 : "이론 · " + (g.이론 || "");
+      return '<div class="mx-law"><b>' + esc(t) + "</b><div>" + esc(g.원문 || g.요지 || g.내용 || "") + "</div></div>";
+    }).join("");
+    (x.개념 || []).forEach(function (c) {
+      h += '<div class="mx-box"><h4>' + esc(c.제목 || "개념 정리") + "</h4>";
+      if (c.종류 === "표" && c.행) h += '<div class="mx-tw"><table><thead><tr>' + (c.머리 || []).map(function (t) { return "<th>" + esc(t) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+        c.행.map(function (r) { return "<tr>" + r.map(function (t, i) { return (i ? "<td>" : "<th>") + esc(String(t)) + (i ? "</td>" : "</th>"); }).join("") + "</tr>"; }).join("") + "</tbody></table></div>";
+      else if (c.종류 === "흐름" && c.단계) h += '<ol class="mx-flow">' + c.단계.map(function (d) { return "<li><b>" + esc(d.이름) + "</b><span>" + esc(d.설명 || "") + "</span></li>"; }).join("") + "</ol>";
+      else if (c.종류 === "비교" && c.왼쪽) h += '<div class="mx-vs">' + [c.왼쪽, c.오른쪽].map(function (v) { return v ? "<div><b>" + esc(v.이름) + "</b><ul>" + (v.항목 || []).map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul></div>" : ""; }).join("") + "</div>";
+      else if (c.종류 === "계산" && c.단계) h += '<ol class="mx-calc">' + c.단계.map(function (d) { return "<li><span>" + esc(d.설명 || "") + "</span><code>" + esc(d.식 || "") + "</code><b>" + esc(d.값 || "") + "</b></li>"; }).join("") + "</ol>";
+      h += "</div>";
+    });
+    if (x.함정) h += '<div class="mx-trap"><b>함정</b> ' + esc(Array.isArray(x.함정) ? x.함정.join(" ") : x.함정) + "</div>";
+    if (x.개정) h += '<div class="lawnote"><h4>' + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준</h4><div>" + esc(x.개정) + "</div></div>";
+    return h + "</div>";
+  }
   function 풀이판(o, k) {
     var 세션 = o.세션 = o.세션 || { 창: 0, 창ok: 0 };   /* 10문항마다(또는 끝) 별 결산 */
     var ids = o.ids, it = o.찾기(ids[k]);
     var 바뀐선지 = {};
     (it.f && it.f.수정 || []).forEach(function (m) { var mm = /^선지(\d)/.exec(m.위치); if (mm) 바뀐선지[+mm[1] - 1] = 1; });
     var h = o.머리(it, k, ids.length);
-    h += '<article class="card qcard" style="margin-top:20px"><div class="bd"><div class="qmeta"><span class="tiny">제' + it.r + "회(" + it.y + ") " + 차이름[it.c] + " " + esc(it.g) + " " + it.n + "번" +
+    h += '<article class="card qcard" style="margin-top:20px"><div class="bd"><div class="qmeta"><span class="tiny">' + (it.x ? "실전 모의 " + String(it.r).slice(1) + "회 " + 교시들[it.g].이름 + " " + it.n + "번" : "제" + it.r + "회(" + it.y + ") " + 차이름[it.c] + " " + esc(it.g) + " " + it.n + "번") +
       (it.p != null ? " · 체감정답률 " + it.p + "%" : "") + '</span><span class="tags">' + (SUBJ[it.L] ? "" : "") + (LEAF[it.L] && LEAF[it.L].과목 === "민법" && 사례형(it) ? '<span class="tag case">사례 · 30초 판별</span>' : "") +
       (계산형(it) ? '<span class="tag calc">계산 · 푸는 법</span>' : "") +
       (it.p != null && it.p <= 20 ? '<span class="tag hot">고난도</span>' : "") + (it.f ? (현행꼬리표(it) || '<span class="tag law">현행 법령 반영</span>') : "") + "</span></div>" +
@@ -457,6 +481,7 @@
           : ok ? "맞았습니다." : "정답은 " + 번호들(답) + "입니다. " + (o.필드 === "w" ? "다음에 오답 다시에서 또 나옵니다." : "틀린 문항은 오답 다시와 이 단원 다음 풀이에 다시 나옵니다.")) +
           (it.m && !(it.f && it.f.현행표시) ? ' <span class="tiny">(' + esc(it.m) + ")</span>" : "") + "</div>";
         a += 현행판(it);
+        if (it.x) a += 실전해설(it);
         if (it.f && ((it.f.수정 || []).length || it.f.요약)) {
           a += '<div class="lawnote"><h4>' + (it.f.판정 === "폐기권고" ? "현행 법령으로는 성립하지 않는 문항입니다" : M.시험.일.replace(/-/g, ".") + " 시행 법령에 맞춰 고친 곳") + "</h4>" +
             (it.f.요약 ? "<div>" + esc(it.f.요약) + "</div>" : "") + "<ul>" +
@@ -541,7 +566,8 @@
   function 오답() {
     탭("home");
     $view.innerHTML = '<div class="empty">문항을 불러오는 중…</div>';
-    여러과목(M.과목.map(function (s) { return s.코드; }), function () {
+    var 실전자료 = 실전목록().filter(function (r) { return 오답목록().some(function (id) { return id.indexOf(r + "-") === 0; }); }).map(function (r) { return "m37_" + r; });
+    여러과목(M.과목.map(function (s) { return s.코드; }).concat(실전자료), function () {
       var by = 문항찾기();
       var ids = 오답목록().filter(function (id) { return by[id]; });
       if (!ids.length) {
@@ -570,11 +596,15 @@
     3: { 이름: "2차 2교시", 과목: ["공시법", "세법"], 분: 50, 차: 2 }
   };
   var 시험과목 = { 학개론: "부동산학개론", 민법: "민법 및 민사특별법", 중개사법: "공인중개사법령 및 실무", 공법: "부동산공법", 공시법: "공시법령·세법", 세법: "공시법령·세법" };
+  /* 실전 모의(제37회 대비 5세트, 07_모의고사) — r 이 "S1"~"S5" 면 실전 세트 */
+  function 실전목록() { return (window.M37 && M37.세트 || []).map(function (n) { return "S" + n; }); }
+  function 실전세트(r) { var m = /^S(\d)$/.exec(String(r)); return m ? "S" + m[1] : null; }
   function 모의기록() { try { return JSON.parse(설정("mock.hist")) || {}; } catch (e) { return {}; } }
   function 모의키(r, g) { return r + "-" + g; }
   function 내교시() { var c = 응시차(); return [1, 2, 3].filter(function (g) { return c === "all" || String(교시들[g].차) === c; }); }
   function 다음모의() {
-    var H = 모의기록(), gs = 내교시();
+    var H = 모의기록(), gs = 내교시(), 실 = 실전목록();
+    for (var t = 0; t < 실.length; t++) for (var u = 0; u < gs.length; u++) if (!H[모의키(실[t], gs[u])]) return { r: 실[t], g: gs[u] };
     for (var r = 36; r >= 27; r--) for (var i = 0; i < gs.length; i++) if (!H[모의키(r, gs[i])]) return { r: r, g: gs[i] };
     return { r: 36, g: gs[0] };
   }
@@ -583,15 +613,22 @@
     var H = 모의기록(), gs = 내교시(), 진행 = 모의진행();
     var h = 머리({ kicker: '<a href="#/home">오늘</a> · 회차 모의고사', h1: "회차 모의고사, <em>시간 재고</em>",
       sub: "지난 기출 한 회를 실제 시험처럼 한 교시씩 풉니다. 1차 100분, 2차 1교시 100분, 2차 2교시 50분. 과목마다 40점 이상, 평균 60점 이상이면 합격선입니다." });
-    if (진행) h += '<a class="btn wide" style="margin-top:20px" href="#/mock/' + 진행.r + "/" + 진행.g + '">풀던 모의고사 이어서: 제' + 진행.r + "회 " + 교시들[진행.g].이름 + "</a>";
-    h += 구획("회차 고르기", "최근 회차부터. 푼 교시는 점수가 붙습니다.") + '<section class="card"><div class="bd">';
-    for (var r = 36; r >= 27; r--) {
-      h += '<div class="mockrow"><b>제' + r + "회</b><div class=\"mockgs\">" + gs.map(function (g) {
+    if (진행) h += '<a class="btn wide" style="margin-top:20px" href="#/mock/' + 진행.r + "/" + 진행.g + '">풀던 모의고사 이어서: ' + (실전세트(진행.r) ? "실전 " + 진행.r.slice(1) + "회 " : "제" + 진행.r + "회 ") + 교시들[진행.g].이름 + "</a>";
+    function 줄(r, 이름) {
+      return '<div class="mockrow"><b>' + 이름 + "</b><div class=\"mockgs\">" + gs.map(function (g) {
         var x = H[모의키(r, g)];
         return '<a class="mockg' + (x ? (x.합 ? " pass" : " fail") : "") + '" href="#/mock/' + r + "/" + g + '"><span>' + 교시들[g].이름 + "</span><small>" +
           (x ? x.점수.map(function (s) { return s.점; }).join("·") + "점" : 교시들[g].분 + "분") + "</small></a>";
       }).join("") + "</div></div>";
     }
+    var 실 = 실전목록();
+    if (실.length) {
+      h += 구획("실전 모의고사", "제37회 시험 구성 그대로, 기출 단원 비중대로 묶은 " + 실.length + "세트. 2026.10.31 시행 법령 기준, 문항마다 해설.") + '<section class="card"><div class="bd">';
+      실.forEach(function (r) { h += 줄(r, "실전 " + r.slice(1) + "회"); });
+      h += "</div></section>";
+    }
+    h += 구획("회차 고르기", "최근 회차부터. 푼 교시는 점수가 붙습니다.") + '<section class="card"><div class="bd">';
+    for (var r = 36; r >= 27; r--) h += 줄(r, "제" + r + "회");
     h += "</div></section>";
     $view.innerHTML = h;
   }
@@ -600,18 +637,21 @@
   function 모의(r, g) {
     탭("home");
     if (모의시계) { clearInterval(모의시계); 모의시계 = null; }
-    var T = 교시들[g]; r = +r;
-    if (!T || r < 27 || r > 36) { location.hash = "#/mock"; return; }
+    var T = 교시들[g], 실전 = 실전세트(r);
+    if (!실전) r = +r;
+    if (!T || (실전 ? 실전목록().indexOf(실전) < 0 : (r < 27 || r > 36))) { location.hash = "#/mock"; return; }
+    var 회이름 = 실전 ? "실전 모의 " + 실전.slice(1) + "회" : "제" + r + "회";
     $view.innerHTML = '<div class="empty">문항을 불러오는 중…</div>';
-    여러과목(T.과목, function () {
+    여러과목(실전 ? ["m37_" + 실전] : T.과목, function () {
       var ids = [];
-      T.과목.forEach(function (s) {
+      if (실전) (Q["m37_" + 실전] || []).filter(function (x) { return x.g === g; }).sort(function (a, b) { return a.n - b.n; }).forEach(function (x) { ids.push(x); });
+      else T.과목.forEach(function (s) {
         (Q[s] || []).filter(function (x) { return x.r === r; }).sort(function (a, b) { return a.n - b.n; }).forEach(function (x) { ids.push(x); });
       });
       var 진행 = 모의진행(), key = 모의키(r, g);
       if (!진행 || 진행.key !== key) 진행 = null;
       if (!진행) {
-        $view.innerHTML = 머리({ kicker: '<a href="#/mock">회차 모의고사</a> · 제' + r + "회", h1: "제" + r + "회 " + T.이름, sub: T.과목.map(function (s) { return esc(SUBJ[s].이름); }).join(" · ") + " · " + ids.length + "문항 · " + T.분 + "분" }) +
+        $view.innerHTML = 머리({ kicker: '<a href="#/mock">회차 모의고사</a> · ' + 회이름, h1: 회이름 + " " + T.이름, sub: T.과목.map(function (s) { return esc(SUBJ[s].이름); }).join(" · ") + " · " + ids.length + "문항 · " + T.분 + "분" }) +
           '<section class="card" style="margin-top:20px"><div class="bd"><p class="sub">시작하면 시계가 돌아갑니다. 답은 제출 전까지 바꿀 수 있고, 시간이 다 되면 저절로 제출됩니다. 창을 닫아도 이 기기에서는 이어서 풀 수 있습니다.</p>' +
           (모의기록()[key] ? '<p class="tiny" style="margin-top:8px">이 교시는 전에 풀었습니다. 다시 풀면 점수가 새로 바뀝니다.</p>' : "") +
           '</div></section><a class="btn wide" id="mstart" href="javascript:void 0">시작하기 (' + T.분 + "분)</a>";
@@ -629,7 +669,7 @@
       function 그리기() {
         var k = 진행.k, it = ids[k], 고른 = 진행.ans[it.i];
         var 푼수 = Object.keys(진행.ans).length;
-        var h = '<div class="mockbar"><span><b>제' + r + "회 " + T.이름 + "</b> · " + esc(SUBJ[LEAF[it.L] ? LEAF[it.L].과목 : T.과목[0]].약칭) + '</span><span class="clock" id="clock">' + 시계글() + '</span><button class="btn ghost sm" id="msubmit">제출</button></div>' +
+        var h = '<div class="mockbar"><span><b>' + 회이름 + " " + T.이름 + "</b> · " + esc(SUBJ[LEAF[it.L] ? LEAF[it.L].과목 : T.과목[0]].약칭) + '</span><span class="clock" id="clock">' + 시계글() + '</span><button class="btn ghost sm" id="msubmit">제출</button></div>' +
           '<article class="card qcard" style="margin-top:14px"><div class="bd"><div class="qmeta"><span class="tiny">' + (k + 1) + " / " + ids.length + "번 · 답 " + 푼수 + "개 표시</span>" +
           '<span class="tags">' + (it.f ? '<span class="tag law">현행 법령 반영</span>' : "") + "</span></div>" +
           '<p class="stem">' + esc(it.q) + "</p>" + 보기그리기(it) + '<div class="picks">' +
@@ -686,13 +726,14 @@
       function 결과(점수, 합, 틀린, 분, 틀린답) {
         var 평균 = Math.round(점수.reduce(function (a, s) { return a + s.점; }, 0) / 점수.length);
         var 루틴 = 흐름() === "m";
-        var h = 머리({ kicker: '<a href="#/mock">회차 모의고사</a> · 제' + r + "회 " + T.이름, h1: 합 ? "합격선 <em>넘었습니다</em>" : "합격선까지 <em>" + Math.max(0, 60 - 평균) + "점</em>",
+        var h = 머리({ kicker: '<a href="#/mock">회차 모의고사</a> · ' + 회이름 + " " + T.이름, h1: 합 ? "합격선 <em>넘었습니다</em>" : "합격선까지 <em>" + Math.max(0, 60 - 평균) + "점</em>",
           sub: 분 + "분 걸림 · 평균 <b>" + 평균 + "점</b> · 과목마다 40점 이상, 평균 60점 이상이면 합격선" }) +
           '<div class="stats' + (점수.length === 2 ? "" : " three") + '" style="margin-top:20px">' + 점수.map(function (s) {
             return '<div class="stat' + (s.점 < 40 ? " hot" : "") + '"><b>' + s.점 + "<small>점</small></b><span>" + esc(s.과목) + " · " + s.맞 + "/" + s.전 + (s.점 < 40 ? " · 과락" : "") + "</span></div>";
           }).join("") + "</div>" +
           '<div class="navq">' + (틀린답 ? '<a class="btn' + (루틴 ? " ghost" : "") + '" href="#/wrong">틀린 ' + 틀린답 + "문항 다시 풀기</a>" : "") +
           (루틴 ? '<a class="btn" href="#/home" id="rtback">오늘 루틴으로 →</a>' : '<a class="btn ghost" href="#/mock">다른 회차</a>') + "</div>" +
+          (실전 ? '<p class="tiny" style="margin-top:10px">틀린 문항은 「오답 다시」에서 해설(근거 조문·선지별 판정·개념 정리)과 함께 다시 풉니다.</p>' : "") +
           베타자리("result");
         if (틀린.length) h += 구획("틀린 문항", "정답은 " + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준") + '<section class="card"><div class="bd">' + 틀린.map(function (it) {
           var j = 진행.ans[it.i];
