@@ -54,6 +54,19 @@
     el.onerror = function () { $view.innerHTML = '<div class="empty">문항 자료를 못 불러왔습니다.</div>'; };
     document.head.appendChild(el);
   }
+  /* 기출 해설 — 07_모의고사\기출해설.json 을 회차별 파일(data/h_<회차>.js)로 나눠 필요할 때만 불러온다. 문항에 e:1 이 있는 것만 */
+  var H = window.H = window.H || {};
+  function 기출해설불러오기(r, cb) {
+    if (H[r]) return cb();
+    var 대기 = 기출해설불러오기.대기 = 기출해설불러오기.대기 || {};
+    if (대기[r]) { 대기[r].push(cb); return; }
+    대기[r] = [cb];
+    var el = document.createElement("script");
+    var 끝 = function () { var l = 대기[r]; delete 대기[r]; l.forEach(function (f) { f(); }); };
+    el.src = "data/h_" + r + ".js?v=" + M.버전;
+    el.onload = 끝; el.onerror = 끝;
+    document.head.appendChild(el);
+  }
   var C = window.C = window.C || {};
   var 개념장 = {}; (M.개념장 || []).forEach(function (k) { 개념장[k] = 1; });
   function 과목개념(code, cb) {
@@ -415,12 +428,12 @@
   /* 문항 한 장 — 단원 풀이·오답 다시가 같이 쓴다.
      o = { ids, 찾기(id)→문항, 머리(it,k,n)→html, 필드:"s"|"w", 끝(k)→마지막 문항 뒤 단추 html, 단원:c(선택) } */
   /* 실전 모의 해설 — 07_모의고사 원고(한줄·보기판정·선지판정·근거·개념 표/흐름/비교/계산·함정·개정) */
-  function 실전해설(it) {
-    var x = it.x, h = '<div class="mx">';
+  function 실전해설(it, 자료) {
+    var x = 자료 || it.x, 답 = 정답들(it), h = '<div class="mx">';
     function 판(p) { return p === "옳음" ? '<b class="mx-o">O</b>' : p === "틀림" ? '<b class="mx-x">X</b>' : '<b class="mx-n">·</b>'; }
     if (x.한줄) h += '<p class="mx-one">' + esc(x.한줄) + "</p>";
     if (x.보기판정) h += "<h4>보기 판정</h4><ul class=\"mx-ox\">" + x.보기판정.map(function (b) { return "<li>" + 판(b.판정) + "<span><b>" + esc(b.기호) + "</b> " + esc(b.설명 || "") + "</span></li>"; }).join("") + "</ul>";
-    if (x.선지) h += "<h4>선지별 판정</h4><ul class=\"mx-ox\">" + x.선지.map(function (s) { return '<li class="' + (it.a.indexOf(s.번호) >= 0 ? "mx-ans" : "") + '">' + 판(s.판정) + "<span><b>" + (NO[s.번호 - 1] || s.번호) + "</b> " + esc(s.설명 || "") + "</span></li>"; }).join("") + "</ul>";
+    if (x.선지) h += "<h4>선지별 판정</h4><ul class=\"mx-ox\">" + x.선지.map(function (s) { return '<li class="' + (답.indexOf(s.번호) >= 0 ? "mx-ans" : "") + '">' + 판(s.판정) + "<span><b>" + (NO[s.번호 - 1] || s.번호) + "</b> " + esc(s.설명 || "") + "</span></li>"; }).join("") + "</ul>";
     if (x.근거) h += "<h4>근거</h4>" + x.근거.map(function (g) {
       var t = g.법령 ? g.법령 + " " + (g.조문 || "") : g.판례 ? "판례 " + g.판례 : "이론 · " + (g.이론 || "");
       return '<div class="mx-law"><b>' + esc(t) + "</b><div>" + esc(g.원문 || g.요지 || g.내용 || "") + "</div></div>";
@@ -454,6 +467,7 @@
       }).join("") + '</div><div id="after"></div></div></article>';
     $view.innerHTML = h;
     window.scrollTo(0, 0);
+    if (it.e && !it.x) 기출해설불러오기(it.r, function () { });
     var 끝 = false;
     [].forEach.call($view.querySelectorAll(".pick"), function (b) {
       b.addEventListener("click", function () {
@@ -483,6 +497,7 @@
         a += 현행판(it);
         if (!ok && 개념장[it.L]) a += '<p class="tiny" style="margin-top:10px"><a href="#/concept/' + it.L + '">이 단원 개념 정리 보기 →</a></p>';
         if (it.x) a += 실전해설(it);
+        else if (it.e) a += '<div id="hs" data-i="' + esc(it.i) + '"></div>';
         if (it.f && ((it.f.수정 || []).length || it.f.요약)) {
           a += '<div class="lawnote"><h4>' + (it.f.판정 === "폐기권고" ? "현행 법령으로는 성립하지 않는 문항입니다" : M.시험.일.replace(/-/g, ".") + " 시행 법령에 맞춰 고친 곳") + "</h4>" +
             (it.f.요약 ? "<div>" + esc(it.f.요약) + "</div>" : "") + "<ul>" +
@@ -499,6 +514,10 @@
         a += "</div>";
         if (!다음있음) a += 베타자리("result");
         document.getElementById("after").innerHTML = a;
+        if (it.e && !it.x) 기출해설불러오기(it.r, function () {
+          var hs = document.getElementById("hs"), 자료 = H[it.r] && H[it.r][it.i];
+          if (hs && 자료 && hs.getAttribute("data-i") === it.i) { hs.innerHTML = 실전해설(it, 자료); }
+        });
         베타붙이기();
         var nx = document.getElementById("next"), pv = document.getElementById("prev"), rb = document.getElementById("rtback");
         if (nx) nx.onclick = function () { 풀이판(o, k + 1); };
