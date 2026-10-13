@@ -179,7 +179,7 @@
   function 구획(제목, 메모) { return '<div class="sec"><h2>' + 제목 + "</h2>" + (메모 ? '<span class="note">' + 메모 + "</span>" : "") + "</div>"; }
 
   /* ── 옷 — 테라러닝 공통 셋: 흰 판(기본) · 종이 · 밤 ── */
-  var 옷들 = [["white", "흰 판"], ["paper", "종이"], ["night", "밤"]];
+  var 옷들 = [["white", "흰색"], ["paper", "종이색"], ["night", "어두운색"]];
   var 옷색 = { white: "#FFFFFF", paper: "#FAF8F3", night: "#08090B" };
   function 옷입기(v) {
     if (!옷색[v]) v = "white";
@@ -198,13 +198,13 @@
     var 후보 = 오늘의리프();
     var h = 머리({
       kicker: "제" + M.시험.회차 + "회 공인중개사 · " + M.시험.일.replace(/-/g, "."),
-      h1: "기출 " + M.분석.회차.length + "회분, <em>오늘 할 것</em>만",
-      sub: "공인중개사 기출 " + M.분석.회차.length + "회분을 단원으로 잘라 스킬트리로 공부합니다. 법령이 바뀐 선지는 현행 법령 기준으로 고쳤습니다."
+      h1: "기출 " + M.분석.회차.length + "회분을 <em>단원별로</em> 풀기",
+      sub: "제27~36회 기출을 단원별로 나눴습니다. 법령이 바뀐 선지는 " + M.시험.일.replace(/-/g, ".") + " 시행 법령에 맞춰 고쳤습니다."
     });
     /* 첫 방문: 어떤 시험을 보는지부터 — 고르면 그 과목만으로 오늘 할 것을 고른다 */
     if (!설정("cha") && !Object.keys(REC).length) {
-      h += '<section class="today first"><span class="kicker"><i></i>처음 오셨네요</span><h2>어떤 시험을 보나요?</h2>' +
-        '<p class="sub">제' + M.시험.회차 + "회 공인중개사 시험은 " + M.시험.일.replace(/-/g, ".") + "(토) 1·2차 같은 날입니다. 고르면 그 과목만으로 오늘 할 것을 짜 드립니다. 설정에서 언제든 바꿀 수 있습니다.</p>" +
+      h += '<section class="today first"><span class="kicker"><i></i>시작</span><h2>어떤 시험을 보나요?</h2>' +
+        '<p class="sub">제' + M.시험.회차 + "회 공인중개사 시험은 " + M.시험.일.replace(/-/g, ".") + "(토) 1·2차 같은 날입니다. 고른 차수의 과목만 추천에 나옵니다. 설정에서 바꿀 수 있습니다.</p>" +
         '<div class="choose">' + [["all", "1·2차 동시", "6과목"], ["1", "1차만", "학개론·민법"], ["2", "2차만", "중개사법·공법·공시·세법"]].map(function (x) {
           return '<button type="button" data-v="' + x[0] + '"><b>' + x[1] + "</b><span>" + x[2] + "</span></button>";
         }).join("") + "</div></section>";
@@ -224,7 +224,7 @@
         }).join("") + "</div></details>";
     } else if (후보.length) {
       var t = 후보[0], c = t.c;
-      h += '<section class="today"><span class="kicker"><i></i>오늘 할 것 하나</span>' +
+      h += '<section class="today"><span class="kicker"><i></i>지금 풀 단원</span>' +
         "<h2>" + esc(c.이름) + "</h2>" +
         '<p class="sub">' + esc(t.s.이름) + " · " + esc(c.편이름) + "</p>" +
         '<div class="stats three"><div class="stat"><b>' + c.회당.toFixed(1) + '<small>문항</small></b><span>시험 한 회 평균 출제</span></div>' +
@@ -236,7 +236,7 @@
           return '<a href="#/study/' + x.c.코드 + '"><span>' + esc(x.c.이름) + ' <span class="tiny">' + esc(x.s.약칭) + "</span></span><span class=\"tiny\">회당 " + x.c.회당.toFixed(1) + "문항</span></a>";
         }).join("") + "</div></details></section>";
     } else {
-      h += '<section class="today"><span class="kicker"><i></i>오늘 할 것</span><h2>추천 단원을 전부 80% 이상 맞혔습니다</h2><p class="sub">스킬트리에서 후순위 단원이나 틀린 문항을 다시 풀어 보세요.</p></section>';
+      h += '<section class="today"><span class="kicker"><i></i>추천 단원</span><h2>추천 단원을 전부 80% 이상 맞혔습니다</h2><p class="sub">스킬트리에서 후순위 단원이나 틀린 문항을 다시 풀어 보세요.</p></section>';
     }
     var 오답수 = 오답목록().length, 모H = 모의기록(), 모수 = Object.keys(모H).length;
     h += 구획("실전 연습") + '<div class="duo"><a class="card plancard" href="#/mock"><div class="hd"><h3>회차 모의고사</h3><span>›</span></div><div class="bd tiny">' +
@@ -280,7 +280,7 @@
     var 모의g = 진행 ? 교시들[진행.g] : 교시들[다음.g], 모의r = 진행 ? 진행.r : 다음.r, 모의href = "#/mock/" + 모의r + "/" + (진행 ? 진행.g : 다음.g);
     var 항목 = [
       { k: "s", ic: "✎", col: "#E5484D", 제목: "약점 쟁점 10문항", 말: d.s >= 10 ? "오늘 " + d.s + "문항 풀이" : esc(약.이름) + " · " + esc(SUBJ[약.과목].약칭) + " · 회당 " + 약.회당.toFixed(1) + "문항", 분: 10, href: "#/study/" + 약.코드, 끝: d.s >= 10, 진도: d.s ? Math.min(10, d.s) + "/10" : "" },
-      { k: "m", ic: "시", col: "#0EA5E9", 제목: 오늘모의 ? "회차 모의 " + 교시들[오늘모의.split("-")[1]].이름 : "회차 모의 " + 모의g.이름, 말: 오늘모의 ? "제" + 오늘모의.split("-")[0] + "회 · " + 모의H[오늘모의].점수.map(function (x) { return x.점; }).join("·") + "점" : "제" + 모의r + "회 · " + 모의g.과목.map(function (s) { return SUBJ[s].약칭; }).join("·") + " · 시간 재고", 분: 모의g.분, href: 모의href, 끝: d.m >= 1, 진도: 진행 ? "푸는 중" : "" },
+      { k: "m", ic: "시", col: "#0EA5E9", 제목: 오늘모의 ? "회차 모의 " + 교시들[오늘모의.split("-")[1]].이름 : "회차 모의 " + 모의g.이름, 말: 오늘모의 ? (실전세트(오늘모의.split("-")[0]) ? "실전 " + 오늘모의.split("-")[0].slice(1) : "제" + 오늘모의.split("-")[0]) + "회 · " + 모의H[오늘모의].점수.map(function (x) { return x.점; }).join("·") + "점" : (실전세트(모의r) ? "실전 " + String(모의r).slice(1) : "제" + 모의r) + "회 · " + 모의g.과목.map(function (s) { return SUBJ[s].약칭; }).join("·") + " · 시간 재고", 분: 모의g.분, href: 모의href, 끝: d.m >= 1, 진도: 진행 ? "푸는 중" : "" },
       { k: "w", ic: "↺", col: "#F59E0B", 제목: "오답 다시", 말: 오답수 ? "틀린 문항 " + 오답수 + "개, 최근 것부터 10개" : "틀린 문항이 생기면 여기로 모입니다", 분: 10, href: "#/wrong", 끝: d.w >= 10 || (!오답수 && d.s >= 10 && d.m >= 1), 진도: d.w ? Math.min(10, d.w) + "/10" : "" }
     ];
     var 지금 = 항목.filter(function (x) { return !x.끝; })[0], nd = 항목.filter(function (x) { return x.끝; }).length;
@@ -481,6 +481,7 @@
           : ok ? "맞았습니다." : "정답은 " + 번호들(답) + "입니다. " + (o.필드 === "w" ? "다음에 오답 다시에서 또 나옵니다." : "틀린 문항은 오답 다시와 이 단원 다음 풀이에 다시 나옵니다.")) +
           (it.m && !(it.f && it.f.현행표시) ? ' <span class="tiny">(' + esc(it.m) + ")</span>" : "") + "</div>";
         a += 현행판(it);
+        if (!ok && 개념장[it.L]) a += '<p class="tiny" style="margin-top:10px"><a href="#/concept/' + it.L + '">이 단원 개념 정리 보기 →</a></p>';
         if (it.x) a += 실전해설(it);
         if (it.f && ((it.f.수정 || []).length || it.f.요약)) {
           a += '<div class="lawnote"><h4>' + (it.f.판정 === "폐기권고" ? "현행 법령으로는 성립하지 않는 문항입니다" : M.시험.일.replace(/-/g, ".") + " 시행 법령에 맞춰 고친 곳") + "</h4>" +
@@ -804,9 +805,9 @@
     var h = 머리({
       kicker: "법령반영 · 제" + M.시험.회차 + "회 시험일 " + M.시험.일.replace(/-/g, ".") + " 기준",
       h1: "현행 법령 <em>반영 대장</em>",
-      sub: "기준: 제" + M.시험.회차 + "회 시험일(" + M.시험.일.replace(/-/g, ".") + ") 현재 시행 법령 — 큐넷 공고 \"시험시행일 현재 시행되고 있는 법령\". 검토 " + L.검토 + "문항 중 <b>" + L.수정 + "문항</b>을 고쳤습니다."
+      sub: "기준: 제" + M.시험.회차 + "회 시험일(" + M.시험.일.replace(/-/g, ".") + ") 현재 시행 법령 — 큐넷 공고 \"시험시행일 현재 시행되고 있는 법령\". 검토 " + L.검토 + "문항 중 <b>" + (L.판정["수정"] || 0) + "문항</b>을 고쳤고, " + (L.판정["폐기권고"] || 0) + "문항은 현행 법령으로 성립하지 않아 폐기를 권고합니다."
     });
-    h += '<div class="stats three" style="margin-top:24px">' + ["수정", "유효", "판단보류"].map(function (k) { return '<div class="stat' + (k === "수정" ? " hot" : "") + '"><b>' + (L.판정[k] || 0) + "</b><span>" + k + "</span></div>"; }).join("") + "</div>";
+    h += '<div class="stats" style="margin-top:24px">' + ["수정", "폐기권고", "유효", "판단보류"].map(function (k) { return '<div class="stat' + (k === "수정" ? " hot" : "") + '"><b>' + (L.판정[k] || 0) + "</b><span>" + k + "</span></div>"; }).join("") + "</div>";
     h += 구획("과목별");
     M.과목.forEach(function (s) {
       var n = L.과목별[s.코드] || 0;
@@ -835,12 +836,12 @@
   function 설정화면() {
     탭("settings");
     var skin = 지금옷(), cha = 응시차();
-    var h = 머리({ h1: "설정", sub: "화면 옷, 보는 시험, 기록을 여기서 바꿉니다." }) +
-      구획("화면 옷", "내용은 같고 색과 글꼴만 바뀝니다.") + '<section class="card"><div class="bd"><div class="segs" id="skin">' +
+    var h = 머리({ h1: "설정", sub: "화면 색, 보는 시험, 기록을 여기서 바꿉니다." }) +
+      구획("화면 색", "내용은 같고 색과 글꼴만 바뀝니다.") + '<section class="card"><div class="bd"><div class="segs" id="skin">' +
       옷들.map(function (x) {
         return '<button type="button" data-v="' + x[0] + '" aria-pressed="' + (skin === x[0]) + '">' + x[1] + "</button>";
       }).join("") + "</div></div></section>" +
-      구획("이번에 보는 시험", "오늘 할 것·스킬트리가 고른 차수 과목만 보여 줍니다.") + '<section class="card"><div class="bd"><div class="segs" id="cha">' +
+      구획("이번에 보는 시험", "오늘 화면의 추천과 스킬트리에 이 차수의 과목만 나옵니다.") + '<section class="card"><div class="bd"><div class="segs" id="cha">' +
       [["all", "1·2차 동시"], ["1", "1차만"], ["2", "2차만"]].map(function (x) {
         return '<button type="button" data-v="' + x[0] + '" aria-pressed="' + (cha === x[0]) + '">' + x[1] + "</button>";
       }).join("") + "</div></div></section>" +
