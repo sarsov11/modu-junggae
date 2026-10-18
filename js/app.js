@@ -163,9 +163,8 @@
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]; }); }
   function pct(x, d) { return (x == null ? "–" : (Math.round(x * Math.pow(10, d || 0)) / Math.pow(10, d || 0)) + "%"); }
   function 디데이() {
-    var d = new Date(M.시험.일 + "T09:00:00+09:00"), now = new Date();
-    var n = Math.ceil((d - now) / 86400000);
-    document.getElementById("dday").innerHTML = n >= 0 ? "제" + M.시험.회차 + "회 <b>D-" + n + "</b>" : "제" + M.시험.회차 + "회 시험 종료";
+    var n = 시험까지();
+    document.getElementById("dday").innerHTML = n > 0 ? "제" + M.시험.회차 + "회 <b>D-" + n + "</b>" : n === 0 ? "제" + M.시험.회차 + "회 <b>D-DAY</b>" : "제" + M.시험.회차 + "회 시험 종료";
   }
   function spark(회차별) {
     var ks = Object.keys(회차별).sort(), mx = 0;
@@ -227,9 +226,11 @@
       });
       return;
     }
-    var 남은날 = Math.ceil((new Date(M.시험.일 + "T09:00:00+09:00") - new Date()) / 86400000);
+    var 남은날 = 시험까지();
     var 막판 = (남은날 >= 0 && 남은날 <= 20) || /[?&]rt=1/.test(location.search);
-    if (막판 && 후보.length) {
+    if (남은날 === 1 || 남은날 === 0) {
+      h += 남은날 === 1 ? 전날카드(후보) : 당일카드();
+    } else if (막판 && 후보.length) {
       h += 루틴카드(후보, 남은날);
       h += '<details class="more"><summary>다른 추천 단원</summary><div class="list">' +
         후보.slice(1, 7).map(function (x) {
@@ -282,7 +283,56 @@
     h += '<p class="foot">문항은 큐넷 공개 기출(공공누리 출처표시)이며, 법령이 바뀐 선지는 ' + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준으로 고쳐 실었습니다. 기록은 이 기기 브라우저에만 저장됩니다.</p>";
     $view.innerHTML = h;
     [].forEach.call($view.querySelectorAll("[data-flow]"), function (a) { a.addEventListener("click", function () { 흐름(a.getAttribute("data-flow")); }); });
+    [].forEach.call($view.querySelectorAll(".ck button"), function (b) {
+      b.onclick = function () { var k = "eve." + b.getAttribute("data-k"), on = 설정(k) !== "1"; 설정(k, on ? "1" : "0"); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); };
+    });
     베타붙이기();
+  }
+
+  /* ── 시험까지 남은 날(한국 날짜 기준) — 10/30 은 하루 종일 1, 10/31 은 0. ?d=N 으로 미리보기 ── */
+  function 시험까지() {
+    var m = /[?&]d=(-?\d+)/.exec(location.search); if (m) return +m[1];
+    var k = new Date(Date.now() + 9 * 3600000), p = M.시험.일.split("-");
+    return Math.round((Date.UTC(+p[0], +p[1] - 1, +p[2]) - Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate())) / 86400000);
+  }
+  /* 시험 시간표(제37회 시행계획: 1차 100분, 2차 1교시 100분·2교시 50분) */
+  var 시간표 = [
+    { 차: "1", 이름: "1차", 과목: "부동산학개론 · 민법 및 민사특별법", 시: "09:30", 끝: "11:10", 분: 100 },
+    { 차: "2", 이름: "2차 1교시", 과목: "중개사법령·중개실무 · 부동산공법", 시: "13:00", 끝: "14:40", 분: 100 },
+    { 차: "2", 이름: "2차 2교시", 과목: "부동산공시법 · 부동산세법", 시: "15:30", 끝: "16:20", 분: 50 }
+  ];
+  function 내시간표() { var c = 응시차(); return 시간표.filter(function (x) { return c === "all" || x.차 === c; }); }
+  function 시간표칸(상태) {
+    return '<ol class="tt">' + 내시간표().map(function (x) {
+      var s = 상태 ? 상태(x) : "";
+      return '<li class="' + s + '"><span class="tm"><b>' + x.시 + "</b>~" + x.끝 + "</span><span class=\"tx\"><b>" + x.이름 + " · " + x.분 + "분</b><span>" + x.과목 + "</span></span>" +
+        (s === "now" ? '<span class="mn">지금</span>' : s === "done" ? '<span class="mn">끝</span>' : "") + "</li>";
+    }).join("") + "</ol>";
+  }
+  function 전날카드(후보) {
+    var 일 = M.시험.일.replace(/-/g, ".").slice(5), 오답수 = 오답목록().length, 약 = 후보.length ? 후보[0].c : null;
+    var 챙김 = [["id", "신분증", "실물 또는 모바일 신분증"], ["card", "수험표", "시험장 주소와 교시별 입실 시각 확인"], ["pen", "컴퓨터용 사인펜", "답안지 표기용"]];
+    var h = '<section class="rtc eve" aria-label="시험 전날"><div class="hd2"><div><span class="k">시험 전날 · 내일 ' + 일 + '(토)</span><div class="big">D-1</div></div></div>' +
+      '<h3 class="eh">내일 시간표</h3>' + 시간표칸() +
+      '<h3 class="eh">챙길 것</h3><div class="ck">' + 챙김.map(function (x) {
+        var on = 설정("eve." + x[0]) === "1";
+        return '<button type="button" data-k="' + x[0] + '" aria-pressed="' + on + '"' + (on ? ' class="on"' : "") + '><i>✓</i><b>' + x[1] + "</b><span>" + x[2] + "</span></button>";
+      }).join("") + '</div><p class="ft">통신·계산 기능이 있는 스마트워치 같은 전자기기는 시험장에 가지고 들어갈 수 없습니다.</p>' +
+      '<h3 class="eh">오늘 볼 것</h3><div class="list eve-l">' +
+      (오답수 ? '<a href="#/wrong" data-flow="w"><span><b>오답 다시</b> <span class="tiny">틀린 문항 ' + 오답수 + "개, 최근 것부터</span></span><span>›</span></a>" : "") +
+      '<a href="#/fix"><span><b>법령이 바뀐 선지</b> <span class="tiny">' + M.시험.일.replace(/-/g, ".") + " 시행 법령으로 고친 문장</span></span><span>›</span></a>" +
+      (약 ? '<a href="' + (개념장[약.코드] ? "#/concept/" : "#/study/") + 약.코드 + '"><span><b>' + esc(약.이름) + '</b> <span class="tiny">' + esc(SUBJ[약.과목].약칭) + " · " + (개념장[약.코드] ? "개념 정리" : "단원 풀이") + "</span></span><span>›</span></a>" : "") +
+      "</div></section>";
+    return h;
+  }
+  function 당일카드() {
+    var k = new Date(Date.now() + 9 * 3600000), 지금 = ("0" + k.getUTCHours()).slice(-2) + ":" + ("0" + k.getUTCMinutes()).slice(-2);
+    if (/[?&]t=(\d\d:\d\d)/.test(location.search)) 지금 = /[?&]t=(\d\d:\d\d)/.exec(location.search)[1];
+    var 표 = 내시간표(), 끝남 = 지금 >= 표[표.length - 1].끝;
+    var h = '<section class="rtc eve" aria-label="시험 당일"><div class="hd2"><div><span class="k">제' + M.시험.회차 + "회 공인중개사 · " + M.시험.일.replace(/-/g, ".") + '(토)</span><div class="big">' + (끝남 ? "시험 끝" : "D-DAY") + "</div></div></div>" +
+      시간표칸(function (x) { return 지금 >= x.끝 ? "done" : 지금 >= x.시 ? "now" : ""; });
+    h += 끝남 ? '<p class="ft">합격자 발표는 12.02(수)입니다.</p>' : '<p class="ft">교시별 입실 시각은 수험표에 적혀 있습니다. 신분증·수험표·컴퓨터용 사인펜.</p>';
+    return h + "</section>";
   }
 
   /* ── 오늘의 루틴(막판 모드, D-20 이하) — 테라러닝 공통 A안: 세로 길 · 종류별 색 아이콘 · 지금 할 것만 떠 있는 카드
@@ -508,6 +558,8 @@
         /* 루틴에서 들어왔으면 10문항째에 루틴으로 돌아가는 단추를 하나만 빨갛게 — 빨간 단추 둘 금지 */
         var 루틴끝 = 흐름() === o.필드 && 하루()[o.필드] >= 10;
         var 다음있음 = k < ids.length - 1;
+        /* 문항 오류 신고 — 베타 공통 모듈(TerraBeta.report)이 있을 때만. 가입 전 사용자도 신고할 수 있다 */
+        if (window.TerraBeta && TerraBeta.report) a += '<button type="button" class="rptbtn" id="rpt">문항이 이상해요 · 신고</button>';
         a += '<div class="navq">' + (k > 0 ? '<button class="btn ghost" id="prev">이전</button>' : "");
         if (루틴끝) a += (다음있음 ? '<button class="btn ghost" id="next">계속 풀기</button>' : "") + '<a class="btn" href="#/home" id="rtback">오늘 루틴으로 →</a>';
         else a += 다음있음 ? '<button class="btn" id="next">다음 문항</button>' : o.끝(k);
@@ -523,6 +575,11 @@
         if (nx) nx.onclick = function () { 풀이판(o, k + 1); };
         if (pv) pv.onclick = function () { 풀이판(o, k - 1); };
         if (rb) rb.onclick = function () { 흐름(""); };
+        var rp = document.getElementById("rpt");
+        if (rp) rp.onclick = function () {
+          var L = LEAF[it.L];
+          try { TerraBeta.report({ app: "junggae", 종목: "공인중개사", id: it.i, 과목: L ? SUBJ[L.과목].이름 : "", 유형: it.x ? "실전 모의" : "기출", 화면: (location.hash || "").slice(1) }); } catch (e) { }
+        };
         var vd = $view.querySelector(".verdict"); if (vd && vd.scrollIntoView) vd.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     });

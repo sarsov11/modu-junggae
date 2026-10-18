@@ -465,3 +465,20 @@ table.heatgrid tr.skip td,table.heatgrid tr.skip td:first-child{color:var(--ink-
 .mx-trap{margin-top:14px;padding:10px 14px;border-radius:var(--r2);background:var(--red-soft);border:1px solid var(--red-line)}
 .mx-trap b{color:var(--red);margin-right:6px}
 @media (max-width:480px){.mx-vs{grid-template-columns:1fr}}
+/* 시험 전날·당일 카드 (1018) */
+.rtc.eve .eh{margin:16px 0 6px;font-size:13px;font-weight:800;color:var(--ink-3);letter-spacing:.02em}
+.rtc .tt{margin:0;padding:0;list-style:none}
+.rtc .tt li{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid var(--line)}
+.rtc .tt li:first-child{border-top:0}
+.rtc .tt .tm{flex:0 0 auto;min-width:92px;font:700 13px/1.2 var(--mono);color:var(--ink-3)}.rtc .tt .tm b{font-size:17px;color:var(--ink)}
+.rtc .tt .tx{flex:1;min-width:0}.rtc .tt .tx b{display:block;font-size:15px;font-weight:800;color:var(--ink)}.rtc .tt .tx span{display:block;font-size:13px;color:var(--ink-3)}
+.rtc .tt .mn{font:800 12.5px/1 var(--mono);color:var(--ink-3)}
+.rtc .tt li.now{margin:4px -6px;padding:10px;border-radius:14px;background:var(--cta-soft);box-shadow:0 0 0 1px var(--cta-line)}.rtc .tt li.now .mn{color:var(--cta)}
+.rtc .tt li.done{opacity:.55}.rtc .tt li.done .mn{color:#16B364}
+.rtc .ck{display:grid;gap:8px}
+.rtc .ck button{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--bg);color:var(--ink);text-align:left;font:inherit;cursor:pointer}
+.rtc .ck button i{flex:0 0 auto;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;border:2px solid var(--line-3);font-style:normal;font-weight:900;font-size:13px;color:transparent}
+.rtc .ck button b{font-size:15px;font-weight:800}.rtc .ck button span{margin-left:auto;font-size:12.5px;color:var(--ink-3);text-align:right}
+.rtc .ck button.on i{background:#16B364;border-color:#16B364;color:#fff}.rtc .ck button.on b{text-decoration:line-through;color:var(--ink-3)}
+.rtc.eve .ft{text-align:left;font-size:13px}
+.rtc .eve-l a b{color:var(--ink)}
