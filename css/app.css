@@ -482,3 +482,7 @@ table.heatgrid tr.skip td,table.heatgrid tr.skip td:first-child{color:var(--ink-
 .rtc .ck button.on i{background:#16B364;border-color:#16B364;color:#fff}.rtc .ck button.on b{text-decoration:line-through;color:var(--ink-3)}
 .rtc.eve .ft{text-align:left;font-size:13px}
 .rtc .eve-l a b{color:var(--ink)}
+
+/* 1021 테라러닝 홈 단추가 앞에 들어가도 이름이 한 줄로 */
+.logo{white-space:nowrap}
+@media (max-width:480px){#th-slot{margin-right:8px!important}}
