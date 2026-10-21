@@ -108,11 +108,36 @@
         sub: d.요약 ? '<b>' + esc(d.요약) + "</b>" : "",
         act: '<a class="btn ghost sm" href="#/study/' + code + '">기출 ' + c.문항.length + "문항 풀기</a>"
       }) +
+        '<div id="vidcard"></div>' +
         '<article class="card concept" style="margin-top:20px"><div class="bd">' + (d.블록 || []).map(블록).join("") + "</div></article>" +
         '<a class="btn wide" href="#/study/' + code + '">이 단원 기출 풀기 (' + c.문항.length + "문항)</a>" +
         '<p class="foot">등급 = 제27~36회 중 이 내용이 나온 회차 수 · S 8회↑ · A 4~7 · B 2~3 · C 1</p>';
-      $view.innerHTML = h; window.scrollTo(0, 0);
+      $view.innerHTML = h; window.scrollTo(0, 0); 강의영상(code);
     });
+  }
+
+  // 장별 강의 영상(10-21) — 영상은 별도 저장소 modu-junggae-video(GitHub Pages), v.json = 장 코드 → [{id,t}]
+  var VID_URL = "https://sarsov11.github.io/modu-junggae-video/", VID = null;
+  function 강의영상(code) {
+    function 그리기() {
+      var box = document.getElementById("vidcard"), L = VID && VID[code];
+      if (!box || !L || !L.length) return;
+      var 탭들 = L.length > 1 ? '<div class="vidtabs">' + L.map(function (v, i) {
+        return '<button class="btn sm ' + (i ? "ghost" : "") + '" data-i="' + i + '">' + esc(v.t) + "</button>"; }).join("") + "</div>" : "";
+      box.innerHTML = '<section class="card vid" style="margin-top:20px"><div class="hd"><h3>강의 영상 · ' + esc(L[0].t) + '</h3><span class="vidlen">' +
+        (L.length > 1 ? L.length + "편" : "") + "</span></div><div class=\"bd\">" + 탭들 +
+        '<video controls playsinline preload="metadata" src="' + VID_URL + "v/" + encodeURIComponent(L[0].id) + '.mp4"></video></div></section>';
+      Array.prototype.forEach.call(box.querySelectorAll(".vidtabs button"), function (b) {
+        b.onclick = function () {
+          var v = L[+b.dataset.i], el = box.querySelector("video");
+          el.src = VID_URL + "v/" + encodeURIComponent(v.id) + ".mp4"; el.play();
+          box.querySelector(".hd h3").textContent = "강의 영상 · " + v.t;
+          Array.prototype.forEach.call(box.querySelectorAll(".vidtabs button"), function (x) { x.classList.toggle("ghost", x !== b); });
+        };
+      });
+    }
+    if (VID) return 그리기();
+    fetch(VID_URL + "v.json").then(function (r) { return r.json(); }).then(function (j) { VID = j; 그리기(); }).catch(function () {});
   }
   function 리프통계(c) {
     var ids = c.문항, done = 0, ok = 0;
