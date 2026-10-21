@@ -108,36 +108,11 @@
         sub: d.요약 ? '<b>' + esc(d.요약) + "</b>" : "",
         act: '<a class="btn ghost sm" href="#/study/' + code + '">기출 ' + c.문항.length + "문항 풀기</a>"
       }) +
-        '<div id="vidcard"></div>' +
         '<article class="card concept" style="margin-top:20px"><div class="bd">' + (d.블록 || []).map(블록).join("") + "</div></article>" +
         '<a class="btn wide" href="#/study/' + code + '">이 단원 기출 풀기 (' + c.문항.length + "문항)</a>" +
         '<p class="foot">등급 = 제27~36회 중 이 내용이 나온 회차 수 · S 8회↑ · A 4~7 · B 2~3 · C 1</p>';
-      $view.innerHTML = h; window.scrollTo(0, 0); 강의영상(code);
+      $view.innerHTML = h; window.scrollTo(0, 0);
     });
-  }
-
-  // 장별 강의 영상(10-21) — 영상은 별도 저장소 modu-junggae-video(GitHub Pages), v.json = 장 코드 → [{id,t}]
-  var VID_URL = "https://sarsov11.github.io/modu-junggae-video/", VID = null;
-  function 강의영상(code) {
-    function 그리기() {
-      var box = document.getElementById("vidcard"), L = VID && VID[code];
-      if (!box || !L || !L.length) return;
-      var 탭들 = L.length > 1 ? '<div class="vidtabs">' + L.map(function (v, i) {
-        return '<button class="btn sm ' + (i ? "ghost" : "") + '" data-i="' + i + '">' + esc(v.t) + "</button>"; }).join("") + "</div>" : "";
-      box.innerHTML = '<section class="card vid" style="margin-top:20px"><div class="hd"><h3>강의 영상 · ' + esc(L[0].t) + '</h3><span class="vidlen">' +
-        (L.length > 1 ? L.length + "편" : "") + "</span></div><div class=\"bd\">" + 탭들 +
-        '<video controls playsinline preload="metadata" src="' + VID_URL + "v/" + encodeURIComponent(L[0].id) + '.mp4"></video></div></section>';
-      Array.prototype.forEach.call(box.querySelectorAll(".vidtabs button"), function (b) {
-        b.onclick = function () {
-          var v = L[+b.dataset.i], el = box.querySelector("video");
-          el.src = VID_URL + "v/" + encodeURIComponent(v.id) + ".mp4"; el.play();
-          box.querySelector(".hd h3").textContent = "강의 영상 · " + v.t;
-          Array.prototype.forEach.call(box.querySelectorAll(".vidtabs button"), function (x) { x.classList.toggle("ghost", x !== b); });
-        };
-      });
-    }
-    if (VID) return 그리기();
-    fetch(VID_URL + "v.json").then(function (r) { return r.json(); }).then(function (j) { VID = j; 그리기(); }).catch(function () {});
   }
   function 리프통계(c) {
     var ids = c.문항, done = 0, ok = 0;
@@ -937,7 +912,7 @@
   function 설정화면() {
     탭("settings");
     var skin = 지금옷(), cha = 응시차();
-    var h = 머리({ h1: "설정", sub: "화면 색, 보는 시험, 기록을 여기서 바꿉니다." }) +
+    var h = 머리({ h1: "설정", sub: "화면 색, 보는 시험, 기록을 여기서 바꿉니다." }) + '<div id="zs-slot" style="margin-top:16px"></div>' +
       구획("화면 색", "내용은 같고 색과 글꼴만 바뀝니다.") + '<section class="card"><div class="bd"><div class="segs" id="skin">' +
       옷들.map(function (x) {
         return '<button type="button" data-v="' + x[0] + '" aria-pressed="' + (skin === x[0]) + '">' + x[1] + "</button>";
@@ -950,6 +925,7 @@
       베타자리("settings") +
       구획("자료 출처") + '<section class="card"><div class="bd"><p class="sub">문항: 한국산업인력공단 큐넷 공개 기출문제(제27~36회, 공공누리 출처표시) · 정답: 큐넷 최종정답 · 법령: 법제처 국가법령정보 공동활용(' + M.시험.일.replace(/-/g, ".") + " 시행본) · 체감정답률: CBT 풀이 사이트 이용자 통계.</p><p class=\"tiny\" style=\"margin-top:8px\">자료 생성 " + esc(M.생성) + "</p></div></section>";
     $view.innerHTML = h;
+    if (window.ZZSTRAT) ZZSTRAT.button("junggae", "#zs-slot");
     [].forEach.call($view.querySelectorAll("#skin button"), function (b) {
       b.onclick = function () { 옷입기(b.getAttribute("data-v")); 설정화면(); };
     });
@@ -969,7 +945,7 @@
       kicker: '<a href="#/home">오늘</a> · 합격 설계도',
       h1: "과목마다 <em>40점</em>, 평균 <em>60점</em>",
       sub: "과목마다 40점 이상, 평균 60점 이상이면 합격입니다. 과목마다 득점·방어·과락 방어 가운데 하나를 맡기고 목표 점수를 따로 잡았습니다."
-    }) +
+    }) + '<div id="zs-slot" style="margin-top:16px"></div>' +
       '<section class="card" style="margin-top:24px"><div class="bd"><img src="전략/합격설계도.png?v=' + M.버전 + '" alt="합격 설계도" style="display:block;width:100%;border-radius:var(--r1)"></div></section>';
     [1, 2].forEach(function (cha) {
       var ss = M.과목.filter(function (s) { return s.차 === cha && 교리[s.코드]; });
@@ -980,6 +956,7 @@
     });
     h += '<p class="foot">오늘 화면은 득점 과목을 먼저 추천하고, 정답률이 목표에 가까워진 과목은 덜 추천합니다. 목표 점수는 제27~36회 기출을 세어서 잡았습니다.</p>';
     $view.innerHTML = h;
+    if (window.ZZSTRAT) ZZSTRAT.button("junggae", "#zs-slot");   /* 1020 합격전략 브리핑 다시 보기 */
   }
 
   /* ── 길잡이 ── */
