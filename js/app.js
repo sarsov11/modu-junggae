@@ -453,27 +453,80 @@
   }
   function 기록남기기(이름, 자료) { var B = window.TERRA_BETA; if (B && B.track) try { B.track(이름, 자료 || {}); } catch (e) { } }
   window.MJ_BETA = { 붙이기: 베타붙이기 };
+  window.MJ_RENDER = { 몸: function (it) { return 문항몸(it); }, 정돈: 자료정돈 };   /* 보기뭉침검수.py 가 학생 화면과 같은 함수로 그린다 */
 
   /* ── 화면: 문제 ── */
-  function 보기그리기(it) {
-    if (!it.b && !(it.img && it.img.length)) return "";
+  /* 자료 글 정돈(2026-10-25 보기 뭉침 검수) — PDF 글자좌표 복원·전사에서 생긴 뭉침을 화면에서 공통 규칙으로 푼다.
+     ① 줄바꿈 자리에서 끊긴 조각(「다.」 「ㆍ광역시…」)은 앞줄에 붙인다
+     ② 한 줄에 보기가 둘 이상(「ㄱ. 실시설계 ㄴ. 기반시설공사」 「○ 상표권 ○ 임대료」)이면 다음 표지 앞에서 나눈다 — 표지는 차례(ㄱ 다음 ㄴ)일 때만
+     ③ 「<보기>가: … 나: …」 「<보기>a. … b. …」 도 같은 방식으로 나눈다 */
+  var 자음 = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ", 가나 = "가나다라마바사아자차카타파하", 영 = "abcdefghij";
+  function 차례로나누기(l, 차례, 꼴) {
+    var 처음 = new RegExp("^\\s*([" + 차례 + "])" + 꼴).exec(l);
+    if (!처음) return [l];
+    var 나온 = [], 지금 = 차례.indexOf(처음[1]), 시작 = 0;
+    for (;;) {
+      var 다음 = 차례.charAt(지금 + 1); if (!다음) break;
+      var m = new RegExp("\\s+(" + 다음 + ")" + 꼴).exec(l.slice(시작 + 1));
+      if (!m) break;
+      var 자리 = 시작 + 1 + m.index;
+      나온.push(l.slice(시작, 자리).trim()); 시작 = 자리; 지금++;
+    }
+    나온.push(l.slice(시작).trim());
+    return 나온;
+  }
+  function 자료정돈(t) {
+    var 줄 = [];
+    String(t).split("\n").forEach(function (l) {
+      if (줄.length && /^\s*(다\.\s*$|ㆍ\S)/.test(l) && !/^\s*[○◦]/.test(l)) { 줄[줄.length - 1] += l.trim(); return; }
+      줄.push(l);
+    });
+    var 나온 = [];
+    줄.forEach(function (l) {
+      var 보 = /^\s*(<보기>|〈보기〉|＜보기＞)\s*(\S.*)$/.exec(l);
+      if (보) { 나온.push(보[1]); l = 보[2]; }
+      var 조각 = 차례로나누기(l, 자음, "\\s*\\.\\s");
+      if (조각.length === 1) 조각 = 차례로나누기(l, 가나, "\\s*:\\s");
+      if (조각.length === 1) 조각 = 차례로나누기(l, 영, "\\.\\s");
+      if (조각.length === 1) 조각 = 차례로나누기(l, "123456789", "\\.\\s");
+      if (조각.length === 1 && /^\s*[○◦]/.test(l)) 조각 = l.split(/\s+(?=[○◦]\s)/);
+      나온.push.apply(나온, 조각);
+    });
+    return 나온.join("\n");
+  }
+  function 문항몸(it) {
+    var q = String(it.q || ""), k = q.indexOf("\n"), 덧 = "";
+    if (k > 0) { 덧 = q.slice(k + 1).trim(); q = q.slice(0, k); }   /* 발문 속 조건 줄(○·)은 자료 상자로 */
+    return '<p class="stem">' + esc(q) + "</p>" + 보기그리기(it, 덧);
+  }
+  function 보기그리기(it, 덧) {
+    var b = [덧, it.b].filter(Boolean).join("\n");
+    if (!b && !(it.img && it.img.length)) return "";
+    b = b ? 자료정돈(b) : "";
     var inner = "";
-    if (it.bs === "표" && it.b) {
-      var 줄 = it.b.split("\n"), 표 = [], 글 = [];
-      줄.forEach(function (l) { if (l.indexOf("|") >= 0) 표.push(l); else if (표.length) { 글.push("\n"); 글.push(l); } else 글.push(l); });
-      var 앞 = [], 뒤 = [], 표시작 = 줄.findIndex(function (l) { return l.indexOf("|") >= 0; });
-      앞 = 줄.slice(0, 표시작).filter(Boolean);
-      var 표줄 = 줄.slice(표시작).filter(function (l) { return l.indexOf("|") >= 0; });
-      뒤 = 줄.slice(표시작).filter(function (l) { return l && l.indexOf("|") < 0; });
-      inner = (앞.length ? esc(앞.join("\n")) + "\n" : "") + '<div class="tblwrap"><table>' + 표줄.map(function (l, i) {
-        var cells = l.split("|").map(function (x) { return x.trim(); });
-        return "<tr>" + cells.map(function (x) { return i === 0 ? "<th>" + esc(x) + "</th>" : "<td>" + esc(x) + "</td>"; }).join("") + "</tr>";
-      }).join("") + "</table></div>" + (뒤.length ? esc(뒤.join("\n")) : "");
-    } else if (it.b) {
-      inner = esc(it.b);
+    if (b && b.split("\n").filter(function (l) { return l.indexOf("|") >= 0; }).length >= 2) {
+      /* 글과 표를 원래 차례대로 — 이어진 「|」 줄 묶음 하나가 표 하나(표가 둘인 문항: 35회-2차-120) */
+      var 묶음 = [];
+      b.split("\n").forEach(function (l) {
+        var 표줄 = l.indexOf("|") >= 0, 끝 = 묶음[묶음.length - 1];
+        if (끝 && 끝.표 === 표줄 && (표줄 || l.trim())) 끝.줄.push(l);
+        else if (표줄 || l.trim()) 묶음.push({ 표: 표줄, 줄: [l] });
+      });
+      inner = 묶음.map(function (m) {
+        /* 몸줄이 ①~⑤ 인 표는 선지 표다 — 아래 선지 단추와 두 번 나오므로 뺀다(35회-2차-102·120) */
+        if (m.표 && (it.ch || []).length && m.줄.slice(1).length === it.ch.length && m.줄.slice(1).every(function (l, i) { return l.split("|")[0].trim() === "①②③④⑤"[i]; })) return "";
+        if (!m.표) return '<div class="dtxt">' + esc(m.줄.join("\n")) + "</div>";
+        return '<div class="tblwrap"><table>' + m.줄.map(function (l, i) {
+          var cells = l.split("|").map(function (x) { x = x.trim(); return x === "(빈칸)" ? "" : x; });   /* 전사 때 빈 머리칸 자리표 */
+          var 머리 = i === 0 && !/^\s*[○◦·\-]/.test(l);   /* 「○ 항목 | 값」 줄로만 된 표는 머리줄이 없다 */
+          return "<tr>" + cells.map(function (x) { return 머리 ? "<th>" + esc(x) + "</th>" : "<td>" + esc(x) + "</td>"; }).join("") + "</tr>";
+        }).join("") + "</table></div>";
+      }).join("");
+    } else if (b) {
+      inner = esc(b);
     }
     if (it.img && it.img.length && it.bs === "그림") inner += it.img.map(function (u) { return '<img loading="lazy" alt="문항 자료" src="' + u + '">'; }).join("");
-    return '<div class="data">' + inner + "</div>";
+    return inner ? '<div class="data">' + inner + "</div>" : "";   /* 선지 표만 있던 문항은 상자를 그리지 않는다 */
   }
   /* 문항 한 장 — 단원 풀이·오답 다시가 같이 쓴다.
      o = { ids, 찾기(id)→문항, 머리(it,k,n)→html, 필드:"s"|"w", 끝(k)→마지막 문항 뒤 단추 html, 단원:c(선택) } */
@@ -511,7 +564,7 @@
       (it.p != null ? " · 체감정답률 " + it.p + "%" : "") + '</span><span class="tags">' + (SUBJ[it.L] ? "" : "") + (LEAF[it.L] && LEAF[it.L].과목 === "민법" && 사례형(it) ? '<span class="tag case">사례 · 30초 판별</span>' : "") +
       (계산형(it) ? '<span class="tag calc">계산 · 푸는 법</span>' : "") +
       (it.p != null && it.p <= 20 ? '<span class="tag hot">고난도</span>' : "") + (it.f ? (현행꼬리표(it) || '<span class="tag law">현행 법령 반영</span>') : "") + "</span></div>" +
-      '<p class="stem">' + esc(it.q) + "</p>" + 보기그리기(it) + '<div class="picks">' +
+      문항몸(it) + '<div class="picks">' +
       it.ch.map(function (t, j) {
         return '<button class="pick' + (바뀐선지[j] ? " changed" : "") + '" data-j="' + (j + 1) + '"><span class="n">' + (NO[j] || j + 1) + "</span><span>" + esc(t) + "</span></button>";
       }).join("") + '</div><div id="after"></div></div></article>';
@@ -749,7 +802,7 @@
         var h = '<div class="mockbar"><span><b>' + 회이름 + " " + T.이름 + "</b> · " + esc(SUBJ[LEAF[it.L] ? LEAF[it.L].과목 : T.과목[0]].약칭) + '</span><span class="clock" id="clock">' + 시계글() + '</span><button class="btn ghost sm" id="msubmit">제출</button></div>' +
           '<article class="card qcard" style="margin-top:14px"><div class="bd"><div class="qmeta"><span class="tiny">' + (k + 1) + " / " + ids.length + "번 · 답 " + 푼수 + "개 표시</span>" +
           '<span class="tags">' + (it.f ? '<span class="tag law">현행 법령 반영</span>' : "") + "</span></div>" +
-          '<p class="stem">' + esc(it.q) + "</p>" + 보기그리기(it) + '<div class="picks">' +
+          문항몸(it) + '<div class="picks">' +
           it.ch.map(function (t, j) {
             return '<button class="pick" data-j="' + (j + 1) + '"' + (고른 === j + 1 ? ' data-s="pick"' : "") + '><span class="n">' + (NO[j] || j + 1) + "</span><span>" + esc(t) + "</span></button>";
           }).join("") + "</div>" +
