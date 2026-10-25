@@ -487,3 +487,8 @@ table.heatgrid tr.skip td,table.heatgrid tr.skip td:first-child{color:var(--ink-
 /* 1021 테라러닝 홈 단추가 앞에 들어가도 이름이 한 줄로 */
 .logo{white-space:nowrap}
 @media (max-width:480px){#th-slot{margin-right:8px!important}}
+
+/* 개념 도식(2026-10-25) — 등급 칩 옆에 도식, 색은 이 사이트 변수로 */
+.dgwrap{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+.dgwrap>.gchip{margin-top:16px}
+.dgwrap>.dg{flex:1;min-width:0;margin:0}

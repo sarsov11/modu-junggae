@@ -80,6 +80,8 @@
   function 등급칩(g) { return g ? '<span class="gchip g' + g + '">' + g + "</span>" : ""; }
   function 블록(b) {
     var t = b.종류;
+    /* 도식 블록(2026-10-25 대표님 「줄글만 줄줄 있으니 공부하기 싫다」) — js/diagram.js 가 그린다 */
+    if (b.t && window.DIAGRAM && DIAGRAM.has(b.t)) return '<div class="dgwrap">' + (b.등급 ? 등급칩(b.등급) : "") + DIAGRAM.html(b) + "</div>";
     if (t === "요점") return '<div class="cpt">' + 등급칩(b.등급) + '<div><b class="kw">' + esc(b.제목) + "</b> " + esc(b.글) + "</div></div>";
     if (t === "조문") return '<div class="jo"><span class="ln">' + esc(b.조) + "</span>" + esc(b.글) + "</div>";
     if (t === "비유") return '<div class="tip"><span class="ti">비유 팁</span><div>' + esc(b.글) + "</div></div>";
