@@ -15,6 +15,7 @@
 try{var s=localStorage.getItem("mj.skin"),old={jijeok:"white",deunggi:"paper",bam:"night"};if(old[s])s=old[s];if(s!=="paper"&&s!=="night")s="white";document.documentElement.setAttribute("data-skin",s)}catch(e){}
 </script>
 <link rel="stylesheet" href="css/app.css?v=10251800">
+<link rel="stylesheet" href="css/stree.css?v=10251800">
 <link rel="stylesheet" href="css/diagram.css?v=10251800">
 </head>
 <body>
@@ -39,11 +40,12 @@ try{var s=localStorage.getItem("mj.skin"),old={jijeok:"white",deunggi:"paper",ba
 <script src="data/meta.js?v=10251800"></script>
 <script src="data/m37.js?v=10251800"></script>
 <script src="js/diagram.js?v=10251800"></script>
+<script src="js/stree.js?v=10251800"></script>
 <script src="js/app.js?v=10251800"></script>
 <!-- 베타 공통 장치(테라러닝 공통 · 베타 운영 인프라): 모듈이 나오면 아래 한 줄 주석만 푼다. app.js 가 window.TERRA_BETA.mount(자리,{site,slot,screen})·track(이름,자료)를 부른다. 자리 = 홈·설정·결과 -->
 <script src="https://sarsov11.github.io/terra-learning/beta/beta.js" data-app="junggae" defer onload="MJ_BETA.붙이기()"></script>
 <script src="js/zzsfx.js?v=1009a" defer></script><script src="js/zzajan.js?v=1009a" defer></script><script src="js/zzcoach.js?v=1009a" defer></script>
-<script src="js/zzstrat.js?v=10251800" defer></script><script src="js/strat_junggae.js?v=10251800" defer></script><script>document.addEventListener("DOMContentLoaded",function(){if(window.ZZSTRAT)ZZSTRAT.auto("junggae");});</script>
+<script src="js/zzstrat.js?v=3247d7fa" defer></script><script src="js/strat_junggae.js?v=10251800" defer></script><script>document.addEventListener("DOMContentLoaded",function(){if(window.ZZSTRAT)ZZSTRAT.auto("junggae");});</script>
 <script src="js/terrahome.js?v=1021" data-slot="#th-slot" defer></script>
 </body>
 </html>

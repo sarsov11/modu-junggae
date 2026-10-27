@@ -114,6 +114,12 @@
         '<a class="btn wide" href="#/study/' + code + '">이 단원 기출 풀기 (' + c.문항.length + "문항)</a>" +
         '<p class="foot">등급 = 제27~36회 중 이 내용이 나온 회차 수 · S 8회↑ · A 4~7 · B 2~3 · C 1</p>';
       $view.innerHTML = h; window.scrollTo(0, 0);
+      /* 스킬트리 잎(소제목)에서 왔으면 그 소제목으로 내린다(1025) */
+      var 갈곳 = null; try { 갈곳 = sessionStorage.getItem("junggae.csub"); sessionStorage.removeItem("junggae.csub"); } catch (e) {}
+      if (갈곳 && 갈곳.split("|")[0] === code) {
+        var 소 = $view.querySelectorAll(".csub")[+갈곳.split("|")[1]];
+        if (소) setTimeout(function () { 소.scrollIntoView({ behavior: "smooth", block: "start" }); 소.style.background = "var(--red-soft, #FDECEC)"; }, 60);
+      }
     });
   }
   function 리프통계(c) {
@@ -383,38 +389,41 @@
     var h = 머리({
       kicker: "스킬트리 · " + 차이름[s.차] + " · " + s.시험문항 + "문항",
       h1: esc(s.이름),
-      sub: "막대 굵기 = 최근 10회 출제비중, 작은 막대 = 회차별 출제 추이. 점선 카드는 <b>학습 후순위</b>(비추천) 단원입니다. 후순위 단원도 문제는 똑같이 풀 수 있습니다."
+      sub: "편마다 한 장씩, 옆으로 넘겨 봅니다. 원은 단원, 가지는 개념 정리의 소제목. <b>후순위</b> 표시 단원도 문제는 똑같이 풀 수 있습니다."
     });
     h += '<div class="segs bar">' + 목록.map(function (x) {
       return '<a' + (x.코드 === s.코드 ? ' aria-current="page"' : "") + ' href="#/tree/' + x.코드 + '">' + esc(x.약칭) + "</a>";
     }).join("") + "</div>";
-    var mx = 0;
-    s.편.forEach(function (p) { p.장.forEach(function (c) { mx = Math.max(mx, c.비중); }); });
-    s.편.forEach(function (p) {
-      var 편비중 = p.장.reduce(function (a, c) { return a + c.비중; }, 0);
-      h += '<div class="pyeon"><h3>' + esc(p.이름) + "</h3><small>" + pct(편비중, 1) + "</small></div><div class=\"trunk\">";
-      p.장.forEach(function (c) {
-        var st = 리프통계(c);
-        h += '<a class="node' + (c.비추천 ? " skip" : "") + (st.이해도 >= 0.8 ? " done" : "") + '" href="#/' + (개념장[c.코드] && !st.푼 ? "concept" : "study") + "/" + c.코드 + '">' +
-          '<div class="row between"><span class="nm grow">' + esc(c.이름) + "</span>" + spark(c.회차별) + "</div>" +
-          '<div class="weight"><i style="width:' + (mx ? 100 * c.비중 / mx : 0) + '%"></i></div>' +
-          '<div class="tags"><span class="tag">회당 ' + c.회당.toFixed(1) + "문항 · " + pct(c.비중, 1) + "</span>" +
-          '<span class="tag">' + c.문항.length + "문항</span>" +
-          (c.평균정답률 != null ? '<span class="tag">체감정답률 ' + Math.round(c.평균정답률) + "%</span>" : "") +
-          (c.최근3회비중 >= c.비중 * 1.3 && c.비중 > 0 ? '<span class="tag hot">최근 늘어남</span>' : "") +
-          (c.수정수 ? '<span class="tag law">법령반영 ' + c.수정수 + "</span>" : "") +
-          (c.비추천 ? '<span class="tag skip">학습 후순위</span>' : "") +
-          (st.푼 ? '<span class="tag ok">' + st.맞힌 + "/" + st.전체 + "</span>" : "") +
-          "</div>" + (c.비추천 ? '<p class="tiny why">' + esc(c.비추천사유) + "</p>" : "") + "</a>";
-      });
-      h += "</div>";
-    });
+    /* 1025 대표님 「구김 없이, 넘기면 다 보이게」 — 편 = 한 장, 장 = 원, 개념 정리의 소제목 = 잎(공용 stree). 옛 카드판은 js/_app_스킬트리전_1025.js */
+    h += '<div id="streehost"></div>';
     $view.innerHTML = h;
+    function 그리기(개념) {
+      var G = s.편.map(function (p) {
+        var nodes = p.장.map(function (c) {
+          var st = 리프통계(c), d = 개념 && 개념[c.코드], 소 = [];
+          if (d) (d.블록 || []).forEach(function (b, i) { if (b.종류 === "소제목") 소.push({ name: b.글, idx: 소.length }); });
+          return { name: c.이름, c: c, avg: c.회당, pct: Math.round(st.이해도 * 100), heat: c.회당 >= 2 ? 3 : c.회당 >= 1 ? 2 : 1,
+                   state: st.이해도 >= 0.8 ? "done" : st.푼 ? "wip" : "none",
+                   badge: c.비추천 ? "후순위" : (c.최근3회비중 >= c.비중 * 1.3 && c.비중 > 0) ? "최근 늘어남" : "",
+                   meta: "회당 " + c.회당.toFixed(1) + "문항 · 기출 " + c.문항.length + (st.푼 ? " · " + st.맞힌 + "/" + st.전체 : ""),
+                   leaves: 소.length >= 2 ? 소 : [] };
+        });
+        var 푼 = nodes.reduce(function (a, n) { return a + n.pct; }, 0);
+        return { name: p.이름, nodes: nodes, avg: p.장.reduce(function (a, c) { return a + c.회당; }, 0), pct: nodes.length ? Math.round(푼 / nodes.length) : 0 };
+      });
+      var host = document.getElementById("streehost"); if (!host || !window.STREE) return;
+      STREE.mount(host, { key: "junggae." + s.코드, groups: G,
+        onNode: function (n) { location.hash = "#/" + (개념장[n.c.코드] && !리프통계(n.c).푼 ? "concept" : "study") + "/" + n.c.코드; },
+        onLeaf: function (l, n) { try { sessionStorage.setItem("junggae.csub", n.c.코드 + "|" + l.idx); } catch (e) {} location.hash = "#/concept/" + n.c.코드; } });
+    }
+    그리기(null);
+    과목개념(s.코드, function (all) { if ((location.hash || "").indexOf("#/tree") === 0 || !location.hash) 그리기(all); });
+
     /* 처음 열면 게임 튜토리얼처럼 한 곳씩 비추며 쓰는 법을 짚는다(2026-10-09, js/zzcoach.js). 한 번 보면 다시 안 뜬다 */
-    var 안내 = function () { if (window.ZZCOACH) ZZCOACH.run("junggae.tree", [
+    var 안내 = function () { if (window.ZZCOACH) ZZCOACH.run("junggae.tree2", [
       { el: '.navlinks a[data-tab="home"]', text: "오늘 탭에서 추천 단원 하나로 바로 시작할 수 있음" },
-      { el: ".node:not(.skip)", text: "단원 카드. 개념 정리가 있는 단원은 처음에 개념부터, 풀어 본 단원은 기출 문제로 열림" },
-      { el: ".node:not(.skip) .weight", text: "굵은 막대는 최근 10회 출제비중, 이름 오른쪽 작은 막대는 회차별 출제 추이. 점선 카드는 학습 후순위 단원" }
+      { el: ".st-page", text: "편 한 장씩 옆으로 넘김. 원은 단원(개념 정리가 있으면 개념부터), 잎은 개념 정리의 소제목" },
+      { el: ".st-map", text: "편 전부. 누르면 그 장으로" }
     ], { delay: 0 }); };
     /* 900ms 안에 다른 화면으로 가면 띄우지 않는다(다른 화면 위에 안내가 덮이던 문제, 1011) */
     var 늦게 = function () { setTimeout(function () { if ((location.hash || "").indexOf("#/tree") === 0) 안내(); }, 900); };
