@@ -252,7 +252,8 @@
         '<div class="stats three"><div class="stat"><b>' + c.회당.toFixed(1) + '<small>문항</small></b><span>시험 한 회 평균 출제</span></div>' +
         '<div class="stat"><b>' + c.문항.length + '<small>문항</small></b><span>최근 10회 기출</span></div>' +
         '<div class="stat"><b>' + t.st.맞힌 + "<small>/" + t.st.전체 + '</small></b><span>맞힌 문항</span></div></div>' +
-        '<a class="btn wide" href="#/study/' + c.코드 + '">시작하기</a>' +
+        /* 11-06 대표님: 개념 없이 문제부터 금지 — 개념 정리가 있는 단원은 개념부터 */
+        '<a class="btn wide" href="' + (개념장[c.코드] ? "#/concept/" : "#/study/") + c.코드 + '">시작하기</a>' +
         '<details class="more"><summary>다음 추천 단원</summary><div class="list">' +
         후보.slice(1, 7).map(function (x) {
           return '<a href="#/study/' + x.c.코드 + '"><span>' + esc(x.c.이름) + ' <span class="tiny">' + esc(x.s.약칭) + "</span></span><span class=\"tiny\">회당 " + x.c.회당.toFixed(1) + "문항</span></a>";
