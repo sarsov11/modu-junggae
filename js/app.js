@@ -377,7 +377,7 @@
       칸 += '<div class="' + (함 ? "full" : 조금 ? "part" : "") + (i === 0 ? " tdy" : "") + '">' + NM[dd.getDay()] + "<i>" + (함 ? "✓" : "") + "</i></div>";
     }
     var 연속 = 0; for (var j = 0; j < 60; j++) { var x = new Date(); x.setDate(x.getDate() - j); var kx = x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2) + "-" + ("0" + x.getDate()).slice(-2); if (날들.indexOf(kx) >= 0) 연속++; else if (j > 0) break; }
-    h += '<div class="wk">' + 칸 + '</div><p class="ft">' + (지금 ? (연속 ? "연속 <b>" + 연속 + "일</b>, 오늘 끝내면 이어짐" : "오늘 루틴을 끝내면 이번 주 칸에 불이 켜짐") : "연속 <b>" + 연속 + "일</b>") + "</p></section>";
+    h += '<div class="wk">' + 칸 + '</div><p class="ft">' + (지금 ? "오늘 루틴을 끝내면 이번 주 칸에 표시됨" : "오늘 루틴 끝") + "</p></section>";
     return h;
   }
   function 루틴날들() { try { return JSON.parse(설정("rt.days")) || []; } catch (e) { return []; } }
