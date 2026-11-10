@@ -472,7 +472,7 @@
         var 진 = 합 ? L.reduce(function (a, l) { return a + l.avg * l.pct; }, 0) / 합 : 0;
         return { id: s.코드 + "." + p.이름, name: p.이름, avg: 합, pct: Math.round(진), leaves: L };
       });
-      return { name: s.약칭 || s.이름, nodes: nodes };
+      return { name: s.약칭 || s.이름, weight: s.시험문항, nodes: nodes };
     });
     $view.innerHTML = '<div id="streehost"></div>';
     var 남 = 시험까지();
