@@ -654,3 +654,280 @@ body.has-tqbar{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 .pick.changed{box-shadow:none}
 .navq:has(#next),.navq:has(#mnext),.navq:has(#msubmit2){display:none}
 .tq-bar{padding-left:max(16px,calc((100vw - 960px)/2));padding-right:max(16px,calc((100vw - 960px)/2))}
+
+/* ═══════════════════════════════════════════════════════════════
+   2026-11-10 한 화면 규칙(화면표준 14절) — 앱의 모든 화면이 같은 값을 쓴다.
+   색: 흰색·회색·포인트 색 한 가지(진하기만 다르게). 정답 초록·오답 빨강은 문제 채점 표시에만.
+   글자: 26 · 20 · 16 · 14 · 13 · 11.5 / 굵기 500 · 600 · 700 · 800
+   모서리: 18(판) · 14(작은 판·선지) · 12(단추) · 999(알약) · 50%(동그라미)
+   판: 흰 바탕 · 모서리 18 · 선 1px #E6E8EC · 그림자 없음 · 판 안에 판 없음
+   ═══════════════════════════════════════════════════════════════ */
+:root{--l1:#E6E8EC}
+.logo .nm{font-size:16px;font-weight:800}
+.logo .mk{border-radius:12px;font-weight:800;width:30px;height:30px}
+.logo small{font-size:13px}
+.navlinks a{font-size:11.5px}
+@media(min-width:960px){.navlinks a{font-size:14px}}
+
+/* 쪽 제목 — 26px 800 한 줄, 검정 한 색 */
+.phead{display:block;border:0;padding:16px 0 8px;gap:0}
+.phead h1,.phead.sm h1,.phead.hero h1{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.25;margin:0;color:var(--ink)}
+.phead h1 em{color:inherit;font-style:normal}
+.phead .sub{font-size:14px;font-weight:500;margin-top:6px;color:var(--ink-3);max-width:none}
+.phead .sub b{color:var(--ink-3);font-weight:700}
+.phead .kicker{font-size:13px}
+.kicker,.kicker a{font-size:13px;font-weight:600;color:var(--ink-4);text-decoration:none}
+.dtl{padding:16px 0 12px}
+.dtl small{font-size:13px;font-weight:600}
+.dtl h1{font-size:26px;font-weight:800;line-height:1.25;margin:4px 0 0;letter-spacing:-.03em}
+.sec{margin:28px 0 12px;display:block}
+.sec h2{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.sec .note{display:none}
+.tiny,.tiny b{font-size:13px;font-weight:600}
+.sub{font-size:14px}
+.foot{font-size:13px}
+
+/* 판 */
+.card,.today,.stat,.notice,.node,.buy{border:1px solid var(--l1);border-radius:18px;background:var(--surface);box-shadow:none}
+.today{background:var(--surface);padding:20px;margin-top:8px}
+.today h2{font-size:20px;font-weight:800;margin:6px 0 4px;letter-spacing:-.03em}
+.today .sub{margin-bottom:14px}
+.today .btn{margin-top:16px}
+.card .bd{padding:18px}
+.card .hd{padding:14px 18px;border-bottom:1px solid var(--l1)}
+.card .hd h3{font-size:16px;font-weight:800}
+.plancard:hover{box-shadow:none;border-color:var(--ink-3)}
+.setc{margin:0 0 12px}
+.setc .sh{font-size:16px;font-weight:800}
+.setc .shn{font-size:13px;font-weight:600}
+.setc .shn:empty{display:none}
+.setc .sh+.segs,.setc .sh+*{margin-top:12px}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0 4px}
+.kv b{display:block;font-size:20px;font-weight:800;line-height:1.2;color:var(--ink);letter-spacing:-.03em}
+.kv b small{font-size:13px;font-weight:600;color:var(--ink-4);margin-left:2px}
+.kv span{display:block;font-size:13px;font-weight:600;color:var(--ink-4);margin-top:4px}
+.today.first .choose button{border-radius:14px;border:1px solid var(--l1);background:var(--surface);padding:0 16px;min-height:56px}
+.today.first .choose button b{font-size:16px;font-weight:800}
+.today.first .choose button span{font-size:13px;font-weight:600;color:var(--ink-4)}
+.today.first .choose button:hover{border-color:var(--pt)}
+.today.first .choose{margin-top:14px}
+details.more{margin-top:12px;border-top:1px solid var(--l1)}
+details.more summary{font-size:14px;font-weight:700;color:var(--ink-3)}
+.list a{font-size:14px;font-weight:600}
+
+/* 목록 줄 — 이름 800 16px + 오른쪽 화살표 원 */
+.rows{padding:0;overflow:hidden}
+.rows>a,.rows>details>summary{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 16px;list-style:none;cursor:pointer;color:var(--ink)}
+.rows>details>summary::-webkit-details-marker{display:none}
+.rows>*+*{border-top:1px solid var(--l1)}
+.rows .rt{display:flex;align-items:baseline;gap:8px;min-width:0;flex:1}
+.rows .rt b{font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.rows .rt small{font-size:13px;font-weight:600;color:var(--ink-4)}
+.ar{flex:none;margin-left:auto;width:28px;height:28px;border-radius:50%;background:var(--surface-3);color:var(--ink-3);display:grid;place-items:center;font-size:16px;font-weight:700;line-height:1}
+.rows .cnt{font-size:14px;font-weight:700;color:var(--pt-ink);white-space:nowrap}
+.rows .cnt+.ar{margin-left:4px}
+.rows details[open]>summary .ar{transform:rotate(90deg)}
+.rows .why,.rows .fxbody{padding:0 16px 16px;font-size:14px;font-weight:500;color:var(--ink-3);line-height:1.6}
+.rows .fxbody:empty{padding:0}
+.rows.in{margin:16px 0 0;border:0;border-top:1px solid var(--l1);border-radius:0;overflow:visible}
+.rows.in>a{padding:0}
+.rows a:hover .rt b{color:var(--pt-ink)}
+
+/* 수치 */
+.stats{grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.stat{padding:16px}
+.stat b{font-family:var(--kr);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.stat span{font-size:13px;font-weight:600;color:var(--ink-4)}
+.stat.hot b{color:var(--ink)}
+.stats.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* 꼬리표·알약 — 포인트 색 옅은 바탕 또는 회색 */
+.tag,.tag.hot,.tag.ok,.tag.law,.tag.case,.tag.calc{font-size:13px;font-weight:600;padding:2px 10px;border:0;border-radius:999px;background:var(--pt-soft);color:var(--pt-ink)}
+.tag.skip,.tag{font-weight:600}
+.tag.skip{background:var(--surface-2);color:var(--ink-4);border:0}
+.goal,.goal.g-up,.goal.g-keep,.goal.g-cut{font-size:13px;font-weight:600;border:0;border-radius:999px;background:var(--pt-soft);color:var(--pt-ink);padding:2px 10px}
+.goal b{font-family:var(--kr);font-size:13px;font-weight:800}
+.rec22{font-size:11.5px;font-weight:800}
+.subj b{font-size:16px;font-weight:800}
+.subj:hover b{color:var(--pt-ink)}
+.track{height:4px}
+.btn{font-size:16px;font-weight:700;box-shadow:none;border-radius:12px}
+.btn.sm{font-size:14px;font-weight:700}
+.segs a,.segs button{font-size:14px;font-weight:700;border-radius:12px;border:1px solid var(--line-2)}
+.segs a[aria-current="page"],.segs button[aria-pressed="true"]{background:var(--pt-soft);border-color:var(--pt);color:var(--pt-ink)}
+.segs.bar a,.segs.bar button{font-size:14px;border-radius:999px;color:var(--ink-3)}
+.empty{font-size:16px}
+
+/* 표 한 가지 — 머리 줄 13px 600 회색 · 줄 높이 44px · 가로선만 · 숫자는 오른쪽 맞춤 */
+table.heatgrid{font-size:14px;font-weight:500}
+table.heatgrid th,table.heatgrid td{height:44px;padding:0 10px;border:0;border-bottom:1px solid var(--l1);text-align:right}
+table.heatgrid tbody tr:last-child td{border-bottom:0}
+table.heatgrid thead th{font-size:13px;font-weight:600;color:var(--ink-3);background:var(--surface)}
+table.heatgrid th:first-child,table.heatgrid td:first-child{text-align:left;min-width:128px;font-weight:700;color:var(--ink)}
+table.heatgrid td b{font-weight:800}
+.heat{border-radius:12px;min-width:32px;padding:3px 6px;font-weight:600;color:var(--ink)}
+.spark i{background:var(--pt);opacity:.5;border-radius:0}
+table.heatgrid td a:hover{color:var(--pt-ink)}
+
+/* 법령 고친 곳·판정 — 포인트 한 가지 */
+.lawnote{border:0;border-left:3px solid var(--pt);border-radius:0;background:none;padding:2px 0 2px 14px;font-size:14px;margin-top:14px}
+.lawnote h4{font-size:14px;font-weight:700;color:var(--pt-ink)}
+.lawnote .was{color:var(--ink-4);text-decoration-color:var(--ink-4)}
+.lawnote .now{font-weight:600}
+.lawnote .src{font-size:13px}
+.lawnote.nowlaw{border-width:3px}
+.lawnote.nowlaw h4{font-size:14px}
+.fixitem>b,.fixitem b{font-weight:800}
+.fixitem{font-size:14px}
+.pick.changed{box-shadow:none}
+
+/* 정답·오답은 채점 표시에만 */
+.verdict{font-size:16px;border:0;border-radius:14px}
+.stem{font-size:20px}
+.qmeta .tiny{font-size:13px;font-weight:600}
+.qmeta .cbtn{font-size:13px}
+.navq .btn{font-size:16px}
+.rptbtn{font-size:13px}
+
+/* 모의고사 */
+.mockrow{padding:10px 0}
+.mockrow>b{font-size:16px;font-weight:800;flex:0 0 64px}
+.mockg{border-radius:14px;border:1px solid var(--l1);font-size:14px;font-weight:700;padding:10px 6px}
+.mockg small{font-size:13px;font-weight:600;color:var(--ink-4)}
+.mockg.pass{border-color:var(--pt);background:var(--pt-soft)}.mockg.pass small{color:var(--pt-ink)}
+.mockg.fail{border-color:var(--l1)}.mockg.fail small{color:var(--ink-4)}
+.mockbar{border:1px solid var(--l1);border-radius:14px;box-shadow:none}
+.mockbar .clock{font-family:var(--kr);font-size:20px;font-weight:800}
+.mockbar .clock.low{color:var(--pt)}
+.omrgrid button{border-radius:12px;font:600 13px/1.1 var(--kr);border:1px solid var(--l1)}
+.omrgrid button small{font-size:11.5px}
+.omrgrid button.on{border-color:var(--pt);color:var(--pt-ink);background:var(--pt-soft)}
+.omrgrid button.cur{outline:2px solid var(--pt)}
+.mx{font-size:14px}.mx h4{font-size:14px;font-weight:800}
+.mx-one{background:var(--pt-soft);border:0;border-radius:14px}
+.mx-ox li.mx-ans{border:1px solid var(--pt);border-radius:14px;background:var(--pt-soft)}
+.mx-ox li>b{font-size:13px;border-radius:50%}
+.mx-o{background:var(--pt)}.mx-x{background:var(--ink-3)}.mx-n{background:var(--ink-4)}
+.mx-law{border-left:3px solid var(--pt);background:none;border-radius:0}
+.mx-law b{color:var(--pt-ink)}
+.mx-box{border:1px solid var(--l1);border-radius:14px;background:var(--surface)}
+.mx-box h4{color:var(--pt-ink)}
+.mx-tw table{font-size:13px}
+.mx-tw thead th{background:var(--pt);color:#fff}
+.mx-flow li{border-color:var(--l1);border-radius:14px}
+.mx-flow li::before{background:var(--pt);font-size:13px}
+.mx-vs>div{border:1px solid var(--l1);border-radius:14px}
+.mx-vs>div:first-child,.mx-vs>div:last-child{border-top:1px solid var(--l1)}
+.mx-calc code{border-radius:12px}
+.mx-trap{background:var(--surface-2);border:0;border-radius:14px}
+.mx-trap b{color:var(--ink)}
+
+/* 개념 */
+.concept{font-size:16px}
+.csub{font-size:20px;font-weight:800;border-bottom:0;padding-bottom:0}
+.cpt .kw{font-size:inherit;font-weight:800}
+.gchip{width:24px;height:24px;border-radius:50%;font-family:var(--kr);font-size:13px;font-weight:800;border:0}
+.gS{background:var(--pt);color:#fff}
+.gA{background:color-mix(in srgb,var(--pt) 55%,#fff);color:#fff}
+.gB{background:color-mix(in srgb,var(--pt) 18%,#fff);color:var(--pt-ink)}
+.gC{background:#E9ECF0;color:var(--ink-4)}
+.jo{font-size:14px;border-left:3px solid var(--pt);background:none;border-radius:0}
+.jo .ln{font-size:13px;background:var(--pt);color:#fff;border-radius:12px;padding:0 8px}
+.tip{background:var(--pt-soft);border:0;border-radius:14px;font-size:14px}
+.tip .ti{font-size:13px;color:var(--pt-ink);border:0;font-weight:800;padding:0}
+.ref{font-size:14px;background:var(--surface-2);border-radius:14px}
+.ref .rt{font-size:13px;border:0;font-weight:800}
+.cmp{border:1px solid var(--l1);border-radius:14px}
+.cmp-h{background:var(--surface-2);color:var(--ink);font-size:14px;font-weight:800}
+.cmp table{font-size:14px}
+.one{background:var(--pt-soft);font-size:14px}
+.tree{border:1px solid var(--l1);border-radius:14px}
+.tr-root{background:var(--pt);color:#fff;border-radius:12px;font-size:14px}
+.tr-g{border:1px solid var(--l1);border-radius:14px;background:var(--surface)}
+.tr-g span{font-size:14px}
+:root[data-skin="white"] .dg{--dg-key:var(--pt);--dg-key-soft:var(--pt-soft)}
+.dgwrap>.gchip{margin-top:16px}
+
+/* 합격 전략 알약은 없앤다 — 오늘 화면 목록 줄과 설정의 줄로 간다 */
+html body .zs-fab,html body.inner .zs-fab{display:none!important}
+
+/* 설정·자료 출처 */
+details.src summary{font-size:14px;font-weight:700;color:var(--pt-ink);cursor:pointer;list-style:none}
+details.src summary::-webkit-details-marker{display:none}
+details.src summary::after{content:" ▾"}
+details.src[open] summary::after{content:" ▴"}
+details.src p{font-size:13px;font-weight:500;color:var(--ink-3);margin-top:10px;line-height:1.6}
+details.src p b{font-weight:700}
+
+/* 합격 지도(tera-map.js 공용 부품) — 앱 css 로 한 화면 규칙 값에 맞춘다 */
+#streehost{padding-top:16px}
+html body .tm-top h2{font-weight:800}
+html body .tm-top h2 small{font-size:13px;font-weight:600}
+html body .tm-dd{font-weight:800}
+html body .tm-all b{font-size:16px;font-weight:800}
+html body .tm-all i,html body .tm-all i u{border-radius:999px}
+html body .tm-no{font-weight:800}
+html body .tm-lh b{font-size:16px;font-weight:800}
+html body .tm-lh span{font-size:13px;font-weight:600}
+html body .tm-lh i,html body .tm-lh i u{border-radius:999px}
+html body .tm-t{border-radius:14px}
+html body .tm-t:hover{box-shadow:none;transform:none}
+html body .tm-two .tm-nm,html body .tm-first .tm-nm{font-size:14px}
+html body .tm-st{font-size:11.5px}
+html body .tm-pc{font-size:13px;font-weight:800}
+html body .tm-t.tm-done .tm-pc{font-size:16px}
+html body .tm-tier{border-radius:50%;font-size:13px;font-weight:800;width:24px;height:24px}
+html body .tm-tag{font-size:11.5px;font-weight:800}
+html body .tm-pv{border-radius:18px;box-shadow:0 0 0 1px var(--l1),0 12px 32px -16px rgba(17,20,25,.3)}
+html body .tm-x{border-radius:50%}
+html body .tm-h b{font-weight:800}
+html body .tm-k b{font-weight:800}
+html body .tm-lf em{font-size:13px;font-weight:800}
+html body .tm-go{font-size:16px;border-radius:12px;font-weight:800}
+html body .tm-t.tm-first{box-shadow:0 0 0 2px var(--p) inset}
+.today{margin-bottom:12px}
+.rptbtn{display:block;margin:16px 0 0;padding:0;border:0;background:none;color:var(--ink-4);font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer}
+html body .tm-go{color:#fff}
+
+/* ── 개념 도식(.dg) · 문제 화면 부품 · 시험 전날·당일·루틴 카드를 같은 값으로 ── */
+html body .dg{--dg-a:var(--pt);--dg-b:var(--pt-ink);--dg-key:var(--pt);--dg-key-soft:var(--pt-soft)}
+html body .dg *{font-size:14px!important}
+html body .dg .dg-vsb{font-size:13px!important}
+html body .dg-kid,html body .dg-root,html body .dg-ri,html body .dg-c0,html body .dg-c1,html body .dg-box,html body .dg-core,html body .dg .tn-s,html body .dg-eff{border-radius:12px}
+html body .dg-n{border-radius:50%}
+html body .pick .n{border-radius:50%}
+html body .tq-tier{border-radius:50%;font-size:13px}
+html body .qmeta .tiny{border-radius:999px}
+html body .qmeta .cbtn{border-radius:12px}
+html body .data{border:0;border-radius:14px;font-size:16px}
+html body .tq-nav,html body .tq-pos,html body .tq-nav.is-next{font-size:16px}
+.rtc{border-radius:18px;box-shadow:none;border:1px solid var(--l1);padding:18px 16px 14px}
+.rtc .hd2 .k,.rtc.eve .eh,.rtc .ft,.rtc.eve .ft{font-size:13px;font-weight:600}
+.rtc .hd2 .big{font:800 26px/1 var(--kr)}.rtc .hd2 .big small{font-size:16px;font-weight:700}
+.rtc .hd2 .chip{font:600 13px/1 var(--kr);border-radius:999px;background:var(--surface-2)}
+.rtc .seg4 i{border-radius:999px}.rtc .seg4 i.done{background:var(--pt)}
+.rtc .tl .nd,.rtc .tl li.now .nd{width:40px;height:40px;font:800 16px/1 var(--kr);box-shadow:none;animation:none;margin-left:0}
+.rtc .tl::before{left:19px}
+.rtc .tl li.up .nd{box-shadow:inset 0 0 0 2px var(--c)}
+.rtc .tl li.done .nd{background:var(--pt);box-shadow:none}
+.rtc .tl .tx b,.rtc .tl li.now .tx b{font-size:16px;font-weight:800}
+.rtc .tl .tx span,.rtc .tl li.now .k2{font-size:13px;font-weight:600}
+.rtc .tl .mn{font:600 13px/1 var(--kr)}.rtc .tl li.done .mn{color:var(--pt-ink)}
+.rtc .tl li.now{border-radius:14px;box-shadow:none;border:1px solid var(--pt);background:var(--pt-soft)}
+.rtc .go{font-size:16px;font-weight:700;border-radius:12px;background:var(--pt)}
+.rtc .wk div,.rtc .wk div i{font-size:13px;font-weight:600}
+.rtc .wk div.full i{background:var(--pt);box-shadow:none}.rtc .wk div.part i{border-color:var(--pt)}
+.rtc .ft b{color:var(--pt-ink)}.rtc.alldone .hd2 .k{color:var(--pt-ink)}
+.rtc .tt .tm{font:600 13px/1.2 var(--kr)}.rtc .tt .tm b{font-size:16px;font-weight:800}
+.rtc .tt .tx b{font-size:16px;font-weight:800}.rtc .tt .tx span{font-size:13px}
+.rtc .tt .mn{font:600 13px/1 var(--kr)}.rtc .tt li.done .mn{color:var(--pt-ink)}
+.rtc .tt li.now{border-radius:14px;box-shadow:none}.rtc .tt li.now .mn{color:var(--pt-ink)}
+.rtc .ck button{border-radius:14px}.rtc .ck button b{font-size:16px;font-weight:700}.rtc .ck button span{font-size:13px;font-weight:600}
+.rtc .ck button i{border-radius:50%;font-size:13px}.rtc .ck button.on i{background:var(--pt);border-color:var(--pt)}
+.track,.track i{border-radius:999px}
+html body .tq-tier{font-weight:800}
+.rtc .ck button i{font-weight:700}
+.rtc .eve-l a b,.eve-l a b{font-size:16px;font-weight:700}
+html body .dg .dg-n,html body .dg .dg-kn,html body .dg .dg-ch,html body .dg .dg-rn,html body .dg .dg-root,html body .dg .dg-term{font-weight:800}
+html body .data{margin:0 0 22px;background:var(--surface-2)}
+html body .dg b,html body .dg .dg-vsb,html body .dg .dg-arr{font-weight:800}

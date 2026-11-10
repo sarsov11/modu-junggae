@@ -21,9 +21,9 @@
 .tq-meta { display: flex; align-items: center; gap: 10px; min-height: 36px; margin-bottom: 10px; }
 .tq-meta .tq-no { font-weight:500;font-size:14px;line-height:1; color: #64748B; }
 .tq-meta .tq-sp { flex: 1; }
-.tq-stars { font-size: 14px; line-height: 1; letter-spacing: 1px; } .tq-stars b { color: #F59E0B; font-weight: 400; } .tq-stars i { color: #E2E8F0; font-style: normal; }
+.tq-stars { font-size: 14px; line-height: 1; letter-spacing: 1px; } .tq-stars b { color: var(--tq-p); font-weight: 400; } .tq-stars i { color: #E2E8F0; font-style: normal; }
 .tq-tier { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; font-weight: 900; font-size: 12px; line-height: 1; color: #fff; }
-.tq-tier-S { background: #FACC15; color: #111419; } .tq-tier-A { background: #E5202E; } .tq-tier-B { background: #2563EB; } .tq-tier-C { background: #4B5563; }
+.tq-tier-S { background: var(--tq-p); } .tq-tier-A { background: color-mix(in srgb, var(--tq-p) 55%, #fff); } .tq-tier-B { background: color-mix(in srgb, var(--tq-p) 18%, #fff); color: var(--tq-pi); } .tq-tier-C { background: #E9ECF0; color: #5F6670; }
 .tq-badge { display: inline-flex; align-items: center; gap: 3px; font-weight:500;font-size:13px;line-height:1; color: #475569; }
 .tq-badge svg { width: 14px; height: 14px; color: #F97316; } .tq-badge b { font-weight: 600; }
 .tq-icon { flex: none; width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--tq-line); background: #fff; color: #64748B; display: grid; place-items: center; cursor: pointer; padding: 0; }

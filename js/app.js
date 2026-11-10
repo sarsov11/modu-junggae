@@ -36,6 +36,8 @@
     try { if (v === undefined) return localStorage.getItem("mj." + k); localStorage.setItem("mj." + k, v); } catch (e) { return null; }
   }
 
+  (function () { var mc = /[?&]cha=(all|1|2)(&|$)/.exec(location.search); if (mc) 설정("cha", mc[1]); })();   /* 미리보기·검사용: ?cha=all */
+
   /* ── 자료 인덱스 ── */
   var LEAF = {}, SUBJ = {};
   M.과목.forEach(function (s) {
@@ -222,7 +224,8 @@
   /* ── 문제 화면 공용 부품(tera-q.js · tera-q.css · tera-pad.js) 조각 ── */
   var 아이콘 = {
     book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6.5C10.2 5 7.6 4.5 4.5 4.8v13c3.1-.3 5.7.2 7.5 1.7 1.8-1.5 4.4-2 7.5-1.7v-13c-3.1-.3-5.7.2-7.5 1.7zM12 6.5v13"/></svg>',
-    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l1-4L16 5l3 3L8.5 18.5z"/></svg>'
+    pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l1-4L16 5l3 3L8.5 18.5z"/></svg>',
+    conf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><path d="M9.7 9.5a2.4 2.4 0 1 1 3.3 2.2c-.7.3-1 .8-1 1.6M12 16.5h.01" stroke-linecap="round"/></svg>'
   };
   var 등급표 = null;
   /* 중요도 등급: 합격 지도와 같은 기준(편마다 한 회 평균 출제 문항 순위, 상위 20% S · 50% A · 80% B · 나머지 C) */
@@ -249,7 +252,7 @@
   function 아래줄(o) {
     var 줄 = document.getElementById("qj-bar");
     if (!줄) { 줄 = document.createElement("div"); 줄.id = "qj-bar"; 줄.className = "tq-bar"; document.body.appendChild(줄); }
-    줄.innerHTML = (o.도구 || []).map(function (t) { return '<button type="button" class="tq-tool" data-t="' + t.id + '"' + (t.끔 ? " disabled" : "") + ">" + 아이콘[t.icon] + t.글 + "</button>"; }).join("") +
+    줄.innerHTML = (o.도구 || []).map(function (t) { return '<button type="button" class="tq-tool' + (t.on ? " is-on" : "") + '" data-t="' + t.id + '"' + (t.끔 ? " disabled" : "") + ">" + 아이콘[t.icon] + t.글 + "</button>"; }).join("") +
       '<span class="tq-sp"></span><button type="button" class="tq-nav" id="qj-prev" aria-label="이전"' + (o.이전 ? "" : " disabled") + '>‹</button><span class="tq-pos">' + o.위치 + " <small>/ " + o.총 + '</small></span>' +
       '<button type="button" class="tq-nav is-next" id="qj-next"' + (o.다음 ? "" : " disabled") + ">" + (o.다음글 || "다음") + " ›</button>";
     (o.도구 || []).forEach(function (t) { var b = 줄.querySelector('[data-t="' + t.id + '"]'); if (b && t.fn) b.onclick = t.fn; });
@@ -267,6 +270,16 @@
   /* 설정·목록: 묶음마다 판 한 장, 안에 묶음 이름(800 16px)과 설명 */
   function 묶음(이름, 메모, 본문) {
     return '<section class="card setc"><div class="bd"><h3 class="sh">' + 이름 + "</h3>" + (메모 ? '<p class="shn">' + 메모 + "</p>" : "") + 본문 + "</div></section>";
+  }
+  /* 목록 줄: 이름(800 16px) + 오른쪽 화살표 원. 연 태그를 앞에 받는다 */
+  function 줄(여는, 이름, 말) { return 여는 + '<span class="rt"><b>' + 이름 + "</b>" + (말 ? "<small>" + 말 + "</small>" : "") + '</span><span class="ar">›</span></a>'; }
+  /* 접힌 칸은 열 때 글을 채운다(닫혀 있는 동안 화면에 글이 없다) */
+  var 접힘글 = {}, 접힘수 = 0;
+  function 접힘(제목, 본문, 클래스) { var k = "z" + (++접힘수); 접힘글[k] = 본문; return '<details class="' + 클래스 + '" data-lz="' + k + '"><summary>' + 제목 + '</summary><div class="lz"></div></details>'; }
+  function 접힘붙이기(루트) {
+    [].forEach.call((루트 || document).querySelectorAll("details[data-lz]"), function (d) {
+      d.addEventListener("toggle", function () { var z = d.querySelector(".lz"); if (d.open && !z.firstChild) z.innerHTML = 접힘글[d.getAttribute("data-lz")] || ""; });
+    });
   }
   function 구획(제목, 메모) { return '<div class="sec"><h2>' + 제목 + "</h2>" + (메모 ? '<span class="note">' + 메모 + "</span>" : "") + "</div>"; }
 
@@ -290,12 +303,10 @@
     var 후보 = 오늘의리프();
     var 지금 = new Date(), 남 = 시험까지();
     var h = '<div class="dtl"><small>공인중개사 · ' + (지금.getMonth() + 1) + "월 " + 지금.getDate() + "일</small><h1>" +
-      (남 >= 0 ? (남 === 0 ? "D-DAY" : "D-" + 남) + ' <span class="exg">제' + M.시험.회차 + "회 " + M.시험.일.replace(/-/g, ".") + "</span>"
-        : "제" + (M.시험.회차 + 1) + '회 <span class="exg">제' + M.시험.회차 + "회 " + M.시험.일.replace(/-/g, ".") + " 종료</span>") + "</h1></div>";
+      (남 >= 0 ? (남 === 0 ? "D-DAY" : "D-" + 남) : "제" + (M.시험.회차 + 1) + "회") + "</h1></div>";
     /* 첫 방문: 어떤 시험을 보는지부터 — 고르면 그 과목만으로 오늘 할 것을 고른다 */
     if (!설정("cha") && !Object.keys(REC).length) {
-      h += '<section class="today first"><span class="kicker"><i></i>시작</span><h2>어떤 시험을 보나요?</h2>' +
-        '<p class="sub">제' + M.시험.회차 + "회 공인중개사 시험은 " + M.시험.일.replace(/-/g, ".") + "(토) 1·2차 같은 날입니다. 고른 차수의 과목만 추천에 나옵니다. 설정에서 바꿀 수 있습니다.</p>" +
+      h += '<section class="today first"><h2>어떤 시험을 보나요?</h2>' +
         '<div class="choose">' + [["all", "1·2차 동시", "6과목"], ["1", "1차만", "학개론·민법"], ["2", "2차만", "중개사법·공법·공시·세법"]].map(function (x) {
           return '<button type="button" data-v="' + x[0] + '"><b>' + x[1] + "</b><span>" + x[2] + "</span></button>";
         }).join("") + "</div></section>";
@@ -317,12 +328,12 @@
         }).join("") + "</div></details>";
     } else if (후보.length) {
       var t = 후보[0], c = t.c;
-      h += '<section class="today"><span class="kicker"><i></i>지금 풀 단원</span>' +
+      h += '<section class="today"><span class="kicker">지금 풀 단원</span>' +
         "<h2>" + esc(c.이름) + "</h2>" +
         '<p class="sub">' + esc(t.s.이름) + " · " + esc(c.편이름) + "</p>" +
-        '<div class="stats three"><div class="stat"><b>' + c.회당.toFixed(1) + '<small>문항</small></b><span>시험 한 회 평균 출제</span></div>' +
-        '<div class="stat"><b>' + c.문항.length + '<small>문항</small></b><span>최근 10회 기출</span></div>' +
-        '<div class="stat"><b>' + t.st.맞힌 + "<small>/" + t.st.전체 + '</small></b><span>맞힌 문항</span></div></div>' +
+        '<div class="kv"><div><b>' + c.회당.toFixed(1) + '<small>문항</small></b><span>한 회 평균 출제</span></div>' +
+        '<div><b>' + c.문항.length + '<small>문항</small></b><span>최근 10회 기출</span></div>' +
+        '<div><b>' + t.st.맞힌 + "<small>/" + t.st.전체 + '</small></b><span>맞힌 문항</span></div></div>' +
         /* 11-06 대표님: 개념 없이 문제부터 금지 — 개념 정리가 있는 단원은 개념부터 */
         '<a class="btn wide" href="' + (개념장[c.코드] ? "#/concept/" : "#/study/") + c.코드 + '">시작</a>' +
         '<details class="more"><summary>다음 추천 단원</summary><div class="list">' +
@@ -330,22 +341,19 @@
           return '<a href="#/study/' + x.c.코드 + '"><span>' + esc(x.c.이름) + ' <span class="tiny">' + esc(x.s.약칭) + "</span></span><span class=\"tiny\">회당 " + x.c.회당.toFixed(1) + "문항</span></a>";
         }).join("") + "</div></details></section>";
     } else {
-      h += '<section class="today"><span class="kicker"><i></i>추천 단원</span><h2>추천 단원을 전부 80% 이상 맞혔습니다</h2><p class="sub">합격 지도에서 후순위 단원이나 복습 문항을 다시 풀어 보세요.</p></section>';
+      h += '<section class="today"><h2>추천 단원을 전부 80% 이상 맞혔습니다</h2></section>';
     }
     var 오답수 = 오답목록().length, 모H = 모의기록(), 모수 = Object.keys(모H).length;
-    h += 구획("모의고사 · 복습") + '<div class="duo"><a class="card plancard" href="#/mock"><div class="hd"><h3>모의고사</h3><span>›</span></div><div class="bd tiny">' +
-      (모수 ? "푼 교시 " + 모수 + "개 · 시간 재고 한 교시씩" : "지난 기출 한 회를 시간 재고 한 교시씩") + '</div></a>' +
-      '<a class="card plancard" href="#/wrong"><div class="hd"><h3>복습</h3><span>›</span></div><div class="bd tiny">' + (오답수 ? "복습 문항 " + 오답수 + "개" : "아직 복습 문항 없음") + "</div></a></div>";
-    h += 구획("합격 설계도", "과목마다 40점 이상, 평균 60점 이상") +
-      '<a class="card plancard" href="#/plan"><div class="hd"><h3>과목별 목표 점수</h3><span>설계도 보기 ›</span></div>' +
-      '<div class="bd tags">' + 대상과목().map(function (s) {
-        var g = 교리[s.코드]; return g ? '<span class="goal g-' + (g.역할 === "득점" ? "up" : g.역할 === "방어" ? "keep" : "cut") + '">' + esc(s.약칭) + " <b>" + g.목표 + "</b></span>" : "";
-      }).join("") + "</div></a>";
+    h += '<section class="card rows">' +
+      줄('<a class="rl" href="#/mock">', "모의고사", 모수 ? "푼 교시 " + 모수 + "개" : "") +
+      줄('<a class="rl" href="#/wrong">', "복습", 오답수 ? "복습 문항 " + 오답수 + "개" : "") +
+      줄('<a class="rl" href="javascript:void 0" data-zs="1">', "합격 전략", "") +
+      줄('<a class="rl" href="#/plan">', "합격 설계도", "") + "</section>";
     // 과목별
     var 차묶음 = {};
     대상과목().forEach(function (s) { (차묶음[s.차] = 차묶음[s.차] || []).push(s); });
     Object.keys(차묶음).forEach(function (cha) {
-      h += 구획(차이름[cha] + " 과목", "과목당 40점 이상 · 평균 60점 이상 합격") + '<section class="card"><div class="bd">';
+      h += 구획(차이름[cha] + " 과목") + '<section class="card"><div class="bd">';
       var 합 = 0, n = 0;
       차묶음[cha].forEach(function (s) {
         var tot = 0, ok = 0, done = 0;
@@ -360,9 +368,9 @@
       if (n) h += '<p class="tiny">푼 문항 기준 ' + 차이름[cha] + " 평균 " + Math.round(합 / n) + "점 수준 (" + (합 / n >= 60 ? "합격선 위" : "합격선 60점까지 " + Math.ceil(60 - 합 / n) + "점") + ")</p>";
     });
     h += 베타자리("home");
-    h += '<p class="foot">문항은 큐넷 공개 기출(공공누리 출처표시)이며, 법령이 바뀐 선지는 ' + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준으로 고쳐 실었습니다. 기록은 이 기기 브라우저에만 저장됩니다.</p>";
     $view.innerHTML = h;
     [].forEach.call($view.querySelectorAll("[data-flow]"), function (a) { a.addEventListener("click", function () { 흐름(a.getAttribute("data-flow")); }); });
+    [].forEach.call($view.querySelectorAll("[data-zs]"), function (a) { a.addEventListener("click", function () { if (window.ZZSTRAT) ZZSTRAT.open("junggae"); }); });
     [].forEach.call($view.querySelectorAll(".ck button"), function (b) {
       b.onclick = function () { var k = "eve." + b.getAttribute("data-k"), on = 설정(k) !== "1"; 설정(k, on ? "1" : "0"); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); };
     });
@@ -397,7 +405,7 @@
       '<h3 class="eh">챙길 것</h3><div class="ck">' + 챙김.map(function (x) {
         var on = 설정("eve." + x[0]) === "1";
         return '<button type="button" data-k="' + x[0] + '" aria-pressed="' + on + '"' + (on ? ' class="on"' : "") + '><i>✓</i><b>' + x[1] + "</b><span>" + x[2] + "</span></button>";
-      }).join("") + '</div><p class="ft">통신·계산 기능이 있는 스마트워치 같은 전자기기는 시험장에 가지고 들어갈 수 없습니다.</p>' +
+      }).join("") + '</div>' +
       '<h3 class="eh">오늘 볼 것</h3><div class="list eve-l">' +
       (오답수 ? '<a href="#/wrong" data-flow="w"><span><b>복습</b> <span class="tiny">복습 문항 ' + 오답수 + "개, 최근 것부터</span></span><span>›</span></a>" : "") +
       '<a href="#/fix"><span><b>법령이 바뀐 선지</b> <span class="tiny">' + M.시험.일.replace(/-/g, ".") + " 시행 법령으로 고친 문장</span></span><span>›</span></a>" +
@@ -411,7 +419,7 @@
     var 표 = 내시간표(), 끝남 = 지금 >= 표[표.length - 1].끝;
     var h = '<section class="rtc eve" aria-label="시험 당일"><div class="hd2"><div><span class="k">제' + M.시험.회차 + "회 공인중개사 · " + M.시험.일.replace(/-/g, ".") + '(토)</span><div class="big">' + (끝남 ? "시험 끝" : "D-DAY") + "</div></div></div>" +
       시간표칸(function (x) { return 지금 >= x.끝 ? "done" : 지금 >= x.시 ? "now" : ""; });
-    h += 끝남 ? '<p class="ft">합격자 발표는 12.02(수)입니다.</p>' : '<p class="ft">교시별 입실 시각은 수험표에 적혀 있습니다. 신분증·수험표·컴퓨터용 사인펜.</p>';
+    if (끝남) h += '<p class="ft">합격자 발표는 12.02(수)입니다.</p>';
     return h + "</section>";
   }
 
@@ -422,9 +430,9 @@
     var 모의H = 모의기록(), 오늘모의 = Object.keys(모의H).filter(function (k) { var t = new Date(모의H[k].t); return t.toDateString() === new Date().toDateString(); }).sort(function (a, b) { return 모의H[b].t - 모의H[a].t; })[0];
     var 모의g = 진행 ? 교시들[진행.g] : 교시들[다음.g], 모의r = 진행 ? 진행.r : 다음.r, 모의href = "#/mock/" + 모의r + "/" + (진행 ? 진행.g : 다음.g);
     var 항목 = [
-      { k: "s", ic: "✎", col: "#E5484D", 제목: "약점 쟁점 10문항", 말: d.s >= 10 ? "오늘 " + d.s + "문항 풀이" : esc(약.이름) + " · " + esc(SUBJ[약.과목].약칭) + " · 회당 " + 약.회당.toFixed(1) + "문항", 분: 10, href: "#/study/" + 약.코드, 끝: d.s >= 10, 진도: d.s ? Math.min(10, d.s) + "/10" : "" },
-      { k: "m", ic: "시", col: "#0EA5E9", 제목: 오늘모의 ? "회차 모의 " + 교시들[오늘모의.split("-")[1]].이름 : "회차 모의 " + 모의g.이름, 말: 오늘모의 ? (실전세트(오늘모의.split("-")[0]) ? "실전 " + 오늘모의.split("-")[0].slice(1) : "제" + 오늘모의.split("-")[0]) + "회 · " + 모의H[오늘모의].점수.map(function (x) { return x.점; }).join("·") + "점" : (실전세트(모의r) ? "실전 " + String(모의r).slice(1) : "제" + 모의r) + "회 · " + 모의g.과목.map(function (s) { return SUBJ[s].약칭; }).join("·") + " · 시간 재고", 분: 모의g.분, href: 모의href, 끝: d.m >= 1, 진도: 진행 ? "푸는 중" : "" },
-      { k: "w", ic: "↺", col: "#F59E0B", 제목: "복습", 말: 오답수 ? "복습 문항 " + 오답수 + "개, 최근 것부터 10개" : "복습 문항이 생기면 여기로 모입니다", 분: 10, href: "#/wrong", 끝: d.w >= 10 || (!오답수 && d.s >= 10 && d.m >= 1), 진도: d.w ? Math.min(10, d.w) + "/10" : "" }
+      { k: "s", ic: "✎", col: "var(--pt)", 제목: "약점 쟁점 10문항", 말: d.s >= 10 ? "오늘 " + d.s + "문항 풀이" : esc(약.이름) + " · " + esc(SUBJ[약.과목].약칭) + " · 회당 " + 약.회당.toFixed(1) + "문항", 분: 10, href: "#/study/" + 약.코드, 끝: d.s >= 10, 진도: d.s ? Math.min(10, d.s) + "/10" : "" },
+      { k: "m", ic: "시", col: "var(--pt)", 제목: 오늘모의 ? "회차 모의 " + 교시들[오늘모의.split("-")[1]].이름 : "회차 모의 " + 모의g.이름, 말: 오늘모의 ? (실전세트(오늘모의.split("-")[0]) ? "실전 " + 오늘모의.split("-")[0].slice(1) : "제" + 오늘모의.split("-")[0]) + "회 · " + 모의H[오늘모의].점수.map(function (x) { return x.점; }).join("·") + "점" : (실전세트(모의r) ? "실전 " + String(모의r).slice(1) : "제" + 모의r) + "회 · " + 모의g.과목.map(function (s) { return SUBJ[s].약칭; }).join("·") + " · 시간 재고", 분: 모의g.분, href: 모의href, 끝: d.m >= 1, 진도: 진행 ? "푸는 중" : "" },
+      { k: "w", ic: "↺", col: "var(--pt)", 제목: "복습", 말: 오답수 ? "복습 문항 " + 오답수 + "개, 최근 것부터 10개" : "복습 문항이 생기면 여기로 모입니다", 분: 10, href: "#/wrong", 끝: d.w >= 10 || (!오답수 && d.s >= 10 && d.m >= 1), 진도: d.w ? Math.min(10, d.w) + "/10" : "" }
     ];
     var 지금 = 항목.filter(function (x) { return !x.끝; })[0], nd = 항목.filter(function (x) { return x.끝; }).length;
     if (!지금) { var dn = 루틴날들(); if (dn.indexOf(오늘키()) < 0) { dn.push(오늘키()); 설정("rt.days", JSON.stringify(dn.slice(-60))); } }
@@ -439,7 +447,7 @@
           '<span class="mn">' + (x.끝 ? "완료" : x.진도 || x.분 + "분") + "</span>" +
           (s === "now" ? '<a class="go" data-flow="' + x.k + '" href="' + x.href + '">' + (x.진도 ? "시작" : "시작") + " →</a>" : "") + "</li>";
       }).join("") + "</ol>";
-    if (!지금) h += '<a class="go" style="background:#16B364" data-flow="s" href="#/study/' + (후보[1] || 후보[0]).c.코드 + '">한 세트 더: ' + esc((후보[1] || 후보[0]).c.이름) + "</a>";
+    if (!지금) h += '<a class="go" data-flow="s" href="#/study/' + (후보[1] || 후보[0]).c.코드 + '">한 세트 더: ' + esc((후보[1] || 후보[0]).c.이름) + "</a>";
     var 날들 = 루틴날들(), NM = ["일", "월", "화", "수", "목", "금", "토"], 칸 = "";
     for (var i = 6; i >= 0; i--) {
       var dd = new Date(); dd.setDate(dd.getDate() - i);
@@ -448,7 +456,7 @@
       칸 += '<div class="' + (함 ? "full" : 조금 ? "part" : "") + (i === 0 ? " tdy" : "") + '">' + NM[dd.getDay()] + "<i>" + (함 ? "✓" : "") + "</i></div>";
     }
     var 연속 = 0; for (var j = 0; j < 60; j++) { var x = new Date(); x.setDate(x.getDate() - j); var kx = x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2) + "-" + ("0" + x.getDate()).slice(-2); if (날들.indexOf(kx) >= 0) 연속++; else if (j > 0) break; }
-    h += '<div class="wk">' + 칸 + '</div><p class="ft">' + (지금 ? "오늘 루틴을 끝내면 이번 주 칸에 표시됨" : "오늘 루틴 끝") + "</p></section>";
+    h += '<div class="wk">' + 칸 + "</div></section>";
     return h;
   }
   function 루틴날들() { try { return JSON.parse(설정("rt.days")) || []; } catch (e) { return []; } }
@@ -585,7 +593,7 @@
       inner = esc(b);
     }
     if (it.img && it.img.length && it.bs === "그림") inner += it.img.map(function (u) { return '<img loading="lazy" alt="문항 자료" src="' + u + '">'; }).join("");
-    return inner ? '<div class="data">' + inner + "</div>" : "";   /* 선지 표만 있던 문항은 상자를 그리지 않는다 */
+    return inner ? '<div class="data tq-box">' + inner + "</div>" : "";   /* 선지 표만 있던 문항은 상자를 그리지 않는다 */
   }
   /* 문항 한 장 — 단원 풀이·복습가 같이 쓴다.
      o = { ids, 찾기(id)→문항, 머리(it,k,n)→html, 필드:"s"|"w", 끝(k)→마지막 문항 뒤 단추 html, 단원:c(선택) } */
@@ -623,6 +631,7 @@
     h += '<article class="card qcard" style="margin-top:16px"><div class="bd"><div class="qmeta"><span class="tiny">' + (it.x ? "실전 모의 " + String(it.r).slice(1) + "회 " + 교시들[it.g].이름 + " " + it.n + "번" : "제" + it.r + "회(" + it.y + ") " + 차이름[it.c] + " " + esc(it.g) + " " + it.n + "번") +
       (it.p != null ? " · 체감정답률 " + it.p + "%" : "") + '</span><span class="tags">' + (SUBJ[it.L] ? "" : "") + (LEAF[it.L] && LEAF[it.L].과목 === "민법" && 사례형(it) ? '<span class="tag case">사례 · 30초 판별</span>' : "") +
       (계산형(it) ? '<span class="tag calc">계산 · 푸는 법</span>' : "") +
+      (o.필드 === "w" && REC[it.i] && REC[it.i].ok && REC[it.i].conf === "half" ? '<span class="tag">헷갈림</span>' : "") +
       (it.f ? (현행꼬리표(it) || '<span class="tag law">현행 법령 반영</span>') : "") +
       (개념장[it.L] ? '<a class="btn ghost sm cbtn" href="#/concept/' + it.L + '">개념</a>' : "") + "</span></div>" +
       문항몸(it) + 풀이창자리(it) + '<div class="picks">' +
@@ -632,8 +641,16 @@
     $view.innerHTML = h;
     안쪽(제목, "");
     풀이창붙이기(it); 줄채우기(it);
+    var 헷 = false;   /* 헷갈림 확신도: 켠 채 답하면 half(헷갈림), 안 켜면 sure(확실) — 기록 칸 conf */
+    function 헷갈림도구() {
+      return { id: "conf", icon: "conf", 글: "헷갈림", on: 헷, fn: function () {
+        헷 = !헷;
+        var b = document.querySelector('#qj-bar [data-t="conf"]'); if (b) b.classList.toggle("is-on", 헷);
+        if (끝 && REC[it.i]) { REC[it.i].conf = 헷 ? "half" : "sure"; 쓰기(REC); }
+      } };
+    }
     function 바그리기(끝남) {
-      아래줄({ 도구: [{ id: "exp", icon: "book", 글: "해설", 끔: !끝남, fn: function () { var a = document.getElementById("after"); if (a) a.scrollIntoView({ behavior: "smooth", block: "start" }); } },
+      아래줄({ 도구: [헷갈림도구(), { id: "exp", icon: "book", 글: "해설", 끔: !끝남, fn: function () { var a = document.getElementById("after"); if (a) a.scrollIntoView({ behavior: "smooth", block: "start" }); } },
         { id: "pen", icon: "pen", 글: "펜", fn: function () { if (window.TERA_PAD && TERA_PAD.pen) TERA_PAD.pen({ key: String(it.i) }); } }],
         위치: String(k + 1), 총: String(ids.length), 이전: k > 0 ? function () { 풀이판(o, k - 1); } : null,
         다음: 끝남 && k < ids.length - 1 ? function () { 풀이판(o, k + 1); } : null });
@@ -659,7 +676,7 @@
           if (window.ZZ) ZZ.stars(률 >= 1 ? 3 : 률 >= 0.7 ? 2 : 률 >= 0.4 ? 1 : 0);
         }
         var r = REC[it.i] || { n: 0 };
-        REC[it.i] = { ok: ok, t: Date.now(), n: r.n + 1 };
+        REC[it.i] = { ok: ok, t: Date.now(), n: r.n + 1, conf: 헷 ? "half" : "sure" };
         쓰기(REC);
         하루더하기(o.필드);
         기록남기기("answer", { id: it.i, ok: ok, mode: o.필드 === "w" ? "wrong" : "study" });
@@ -719,7 +736,7 @@
       var ids = c.문항.slice();
       // 안 푼 것 → 틀린 것 → 맞힌 것, 같은 무리 안에서는 최신 회차부터
       ids.sort(function (a, b) {
-        function g(id) { var r = REC[id]; return !r ? 0 : (r.ok ? 2 : 1); }
+        function g(id) { var r = REC[id]; return !r ? 0 : (r.ok && r.conf !== "half" ? 2 : 1); }
         return g(a) - g(b) || byId[b].r - byId[a].r;
       });
       var k = 번호 == null ? 0 : Math.max(0, Math.min(ids.length - 1, 번호));
@@ -758,7 +775,7 @@
     return m;
   }
   function 오답목록() {
-    return Object.keys(REC).filter(function (id) { return REC[id] && !REC[id].ok; })
+    return Object.keys(REC).filter(function (id) { return REC[id] && (!REC[id].ok || REC[id].conf === "half"); })   /* 틀린 문항 + 헷갈림으로 답한 문항 */
       .sort(function (a, b) { return REC[b].t - REC[a].t; });
   }
 
@@ -771,7 +788,7 @@
       var by = 문항찾기();
       var ids = 오답목록().filter(function (id) { return by[id]; });
       if (!ids.length) {
-        $view.innerHTML = 머리({ kicker: '<a href="#/home">오늘</a> · 복습', h1: "다시 풀 문항이 <em>없습니다</em>", sub: "복습 문항이 생기면 여기에 모입니다. 다시 풀어 맞히면 빠집니다." }) +
+        $view.innerHTML = 머리({ kicker: '<a href="#/home">오늘</a> · 복습', h1: "다시 풀 문항이 없습니다" }) +
           '<a class="btn wide" href="#/home" style="margin-top:20px">오늘 화면으로</a>';
         return;
       }
@@ -780,7 +797,7 @@
         머리: function (it, k, n) {
           var c = LEAF[it.L];
           return 머리({ sm: 1, kicker: '<a href="#/home">오늘</a> · 복습' + (c ? " · " + esc(SUBJ[c.과목].약칭) + " · " + esc(c.이름) : ""),
-            h1: "복습", sub: "복습 문항 <b>" + n + "</b>개, 최근에 틀린 것부터. 맞히면 목록에서 빠집니다.",
+            h1: "복습",
             act: '<span class="tag">' + (k + 1) + " / " + n + "</span>" });
         },
         끝: function () { return '<a class="btn" href="#/home">오늘 화면으로</a>'; }
@@ -811,8 +828,7 @@
   function 모의목록() {
     탭("home");
     var H = 모의기록(), gs = 내교시(), 진행 = 모의진행();
-    var h = 머리({ kicker: '<a href="#/home">오늘</a> · 모의고사', h1: "모의고사, <em>시간 재고</em>",
-      sub: "지난 기출 한 회를 실제 시험처럼 한 교시씩 풉니다. 1차 100분, 2차 1교시 100분, 2차 2교시 50분. 과목마다 40점 이상, 평균 60점 이상이면 합격선입니다." });
+    var h = 머리({ h1: "모의고사" });
     if (진행) h += '<a class="btn wide" style="margin-top:20px" href="#/mock/' + 진행.r + "/" + 진행.g + '">풀던 모의고사 이어서: ' + (실전세트(진행.r) ? "실전 " + 진행.r.slice(1) + "회 " : "제" + 진행.r + "회 ") + 교시들[진행.g].이름 + "</a>";
     var 찍음 = !!진행;
     function 줄(r, 이름) {
@@ -825,11 +841,11 @@
     }
     var 실 = 실전목록();
     if (실.length) {
-      h += 구획("모의고사", "제37회 시험 구성 그대로, 기출 단원 비중대로 묶은 " + 실.length + "세트. 2026.10.31 시행 법령 기준, 문항마다 해설.") + '<section class="card"><div class="bd">';
+      h += 구획("실전 모의") + '<section class="card"><div class="bd">';
       실.forEach(function (r) { h += 줄(r, "실전 " + r.slice(1) + "회"); });
       h += "</div></section>";
     }
-    h += 구획("회차 고르기", "최근 회차부터. 푼 교시는 점수가 붙습니다.") + '<section class="card"><div class="bd">';
+    h += 구획("기출 회차") + '<section class="card"><div class="bd">';
     for (var r = 36; r >= 27; r--) h += 줄(r, "제" + r + "회");
     h += "</div></section>";
     $view.innerHTML = h;
@@ -854,9 +870,8 @@
       if (!진행 || 진행.key !== key) 진행 = null;
       if (!진행) {
         $view.innerHTML = 머리({ kicker: '<a href="#/mock">모의고사</a> · ' + 회이름, h1: 회이름 + " " + T.이름, sub: T.과목.map(function (s) { return esc(SUBJ[s].이름); }).join(" · ") + " · " + ids.length + "문항 · " + T.분 + "분" }) +
-          '<section class="card" style="margin-top:20px"><div class="bd"><p class="sub">시작하면 시계가 돌아갑니다. 답은 제출 전까지 바꿀 수 있고, 시간이 다 되면 저절로 제출됩니다. 창을 닫아도 이 기기에서는 이어서 풀 수 있습니다.</p>' +
-          (모의기록()[key] ? '<p class="tiny" style="margin-top:8px">이 교시는 전에 풀었습니다. 다시 풀면 점수가 새로 바뀝니다.</p>' : "") +
-          '</div></section><a class="btn wide" id="mstart" href="javascript:void 0">시작 (' + T.분 + "분)</a>";
+          (모의기록()[key] ? '<p class="tiny" style="margin-top:12px">이 교시는 전에 풀었습니다.</p>' : "") +
+          '<a class="btn wide" id="mstart" href="javascript:void 0" style="margin-top:20px">시작 (' + T.분 + "분)</a>";
         document.getElementById("mstart").onclick = function () {
           설정("mock.cur", JSON.stringify({ key: key, r: r, g: g, start: Date.now(), ans: {}, k: 0 }));
           기록남기기("mock_start", { key: key });
@@ -889,7 +904,11 @@
         var 이동자리 = document.createElement("div"); 이동자리.style.margin = "0 0 10px";
         var om = $view.querySelector(".omr"); if (om) om.parentNode.insertBefore(이동자리, om);
         if (window.TERA_Q) TERA_Q.jump(이동자리, { count: 안푼, onClick: function () { var j = ids.findIndex(function (x) { return !진행.ans[x.i]; }); if (j >= 0) { 진행.k = j; 저장(); 그리기(); window.scrollTo(0, 0); } } });
-        아래줄({ 도구: [{ id: "pen", icon: "pen", 글: "펜", fn: function () { if (window.TERA_PAD && TERA_PAD.pen) TERA_PAD.pen({ key: String(it.i) }); } }],
+        진행.conf = 진행.conf || {};
+        아래줄({ 도구: [{ id: "conf", icon: "conf", 글: "헷갈림", on: !!진행.conf[it.i], fn: function () {
+          if (진행.conf[it.i]) delete 진행.conf[it.i]; else 진행.conf[it.i] = 1; 저장();
+          var cb = document.querySelector('#qj-bar [data-t="conf"]'); if (cb) cb.classList.toggle("is-on", !!진행.conf[it.i]);
+        } }, { id: "pen", icon: "pen", 글: "펜", fn: function () { if (window.TERA_PAD && TERA_PAD.pen) TERA_PAD.pen({ key: String(it.i) }); } }],
           위치: String(k + 1), 총: String(ids.length),
           이전: k > 0 ? function () { var e = document.getElementById("mprev"); if (e) e.click(); } : null,
           다음: function () { var e = document.getElementById("mnext") || document.getElementById("msubmit2"); if (e) e.click(); },
@@ -922,7 +941,7 @@
           var j = 진행.ans[it.i], 판 = j ? 채점(it, j) : false, ok = 판 !== false;
           s.전++; if (ok) s.맞++;
           var rr = REC[it.i] || { n: 0 };
-          if (j) REC[it.i] = { ok: ok, t: Date.now(), n: rr.n + 1 };
+          if (j) REC[it.i] = { ok: ok, t: Date.now(), n: rr.n + 1, conf: (진행.conf || {})[it.i] ? "half" : "sure" };
           if (!ok) 틀린.push(it);
           if (j && !ok) 틀린답++;
         });
@@ -939,14 +958,13 @@
       function 결과(점수, 합, 틀린, 분, 틀린답) {
         var 평균 = Math.round(점수.reduce(function (a, s) { return a + s.점; }, 0) / 점수.length);
         var 루틴 = 흐름() === "m";
-        var h = 머리({ kicker: '<a href="#/mock">모의고사</a> · ' + 회이름 + " " + T.이름, h1: 합 ? "합격선 <em>넘었습니다</em>" : "합격선까지 <em>" + Math.max(0, 60 - 평균) + "점</em>",
-          sub: 분 + "분 걸림 · 평균 <b>" + 평균 + "점</b> · 과목마다 40점 이상, 평균 60점 이상이면 합격선" }) +
+        var h = 머리({ kicker: '<a href="#/mock">모의고사</a> · ' + 회이름 + " " + T.이름, h1: 합 ? "합격선 넘었습니다" : "합격선까지 " + Math.max(0, 60 - 평균) + "점",
+          sub: 분 + "분 걸림 · 평균 " + 평균 + "점" }) +
           '<div class="stats' + (점수.length === 2 ? "" : " three") + '" style="margin-top:20px">' + 점수.map(function (s) {
             return '<div class="stat' + (s.점 < 40 ? " hot" : "") + '"><b>' + s.점 + "<small>점</small></b><span>" + esc(s.과목) + " · " + s.맞 + "/" + s.전 + (s.점 < 40 ? " · 과락" : "") + "</span></div>";
           }).join("") + "</div>" +
           '<div class="navq">' + (틀린답 ? '<a class="btn' + (루틴 ? " ghost" : "") + '" href="#/wrong">틀린 ' + 틀린답 + "문항 다시 풀기</a>" : "") +
           (루틴 ? '<a class="btn" href="#/home" id="rtback">오늘 루틴으로 →</a>' : '<a class="btn ghost" href="#/mock">다른 회차</a>') + "</div>" +
-          (실전 ? '<p class="tiny" style="margin-top:10px">복습 문항은 「복습」에서 해설(근거 조문·선지별 판정·개념 정리)과 함께 다시 풉니다.</p>' : "") +
           베타자리("result");
         if (틀린.length) h += 구획("복습 문항", "정답은 " + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준") + '<section class="card"><div class="bd">' + 틀린.map(function (it) {
           var j = 진행.ans[it.i];
@@ -954,6 +972,7 @@
             '<span class="tiny">고른 답 ' + (j ? NO[j - 1] : "없음") + " · 정답 " + (정답들(it).length ? 번호들(정답들(it)) : "없음") + "</span></div><div>" + esc(it.q.length > 80 ? it.q.slice(0, 80) + "…" : it.q) + "</div></div>";
         }).join("") + "</div></section>";
         $view.innerHTML = h; window.scrollTo(0, 0);
+        아래줄치우기(); var 시계 = document.getElementById("gpr"); if (시계) 시계.textContent = "";   /* 제출한 뒤에는 문제 아래 줄과 시계를 걷는다 */
         var rb = document.getElementById("rtback"); if (rb) rb.onclick = function () { 흐름(""); };
         베타붙이기();
       }
@@ -973,11 +992,7 @@
     var 추천리프 = 오늘의리프()[0];   /* 화면표준 10절: 오늘 화면의 첫 추천 단원 한 곳에만 추천 표시 */
     탭("analysis");
     var s = SUBJ[code] || M.과목[0];
-    var h = 머리({
-      kicker: "출제 분석 · " + esc(M.분석.기간),
-      h1: esc(s.이름) + " <em>출제 분석</em>",
-      sub: s.문항수 + "문항을 단원으로 잘라 셌습니다. 한 문항이 두 단원에 걸리면 나눠 셉니다.<br><b>후순위 합계 " + pct(s.비추천비중합, 1) + "</b> — " + esc(s.합격계산)
-    });
+    var h = 머리({ h1: esc(s.이름) + " 출제 분석" });
     h += '<div class="segs bar">' + M.과목.map(function (x) {
       return '<a' + (x.코드 === s.코드 ? ' aria-current="page"' : "") + ' href="#/analysis/' + x.코드 + '">' + esc(x.약칭) + "</a>";
     }).join("") + "</div>";
@@ -985,7 +1000,7 @@
     var 회차 = M.분석.회차;
     var mx = 0;
     Object.keys(s.편_회차).forEach(function (p) { 회차.forEach(function (r) { mx = Math.max(mx, s.편_회차[p][r] || 0); }); });
-    h += 구획("편별 · 회차별 출제 문항 수") + '<section class="card"><div class="bd tblscroll"><table class="heatgrid"><thead><tr><th>편</th>' +
+    h += 구획("편별 · 회차별 출제 문항 수") + '<section class="card"><div class="tblscroll"><table class="tbl heatgrid"><thead><tr><th>편</th>' +
       회차.map(function (r) { return "<th>" + r + "회</th>"; }).join("") + "<th>합</th></tr></thead><tbody>";
     Object.keys(s.편_회차).forEach(function (p) {
       var row = s.편_회차[p], sum = 0;
@@ -999,42 +1014,38 @@
     var 리프 = [];
     s.편.forEach(function (p) { p.장.forEach(function (c) { 리프.push(c); }); });
     리프.sort(function (a, b) { return b.비중 - a.비중; });
-    h += 구획("단원(장)별 출제비중", "체감정답률 = CBT 풀이 사이트 이용자 정답률(제27~35회). 공식 통계가 아니라 단원끼리 비교하는 용도로만 씁니다.") +
-      '<section class="card"><div class="bd tblscroll"><table class="heatgrid"><thead><tr><th>단원</th><th>10년</th><th>최근3회</th><th>문항</th><th>체감정답률</th><th>추이</th></tr></thead><tbody>' +
+    h += 구획("단원(장)별 출제비중") +
+      '<section class="card"><div class="tblscroll"><table class="tbl heatgrid"><thead><tr><th>단원</th><th>10년</th><th>최근3회</th><th>문항</th><th>체감정답률</th><th>추이</th></tr></thead><tbody>' +
       리프.map(function (c) {
         return '<tr class="' + (c.비추천 ? "skip" : "") + '"><td><a href="#/study/' + c.코드 + '">' + esc(c.이름) + "</a>" + (추천리프 && 추천리프.c.코드 === c.코드 ? ' <b class="rec22">추천</b>' : "") + (c.비추천 ? ' <span class="tag skip">후순위</span>' : "") + "</td><td>" + pct(c.비중, 1) + "</td><td>" + pct(c.최근3회비중, 1) + "</td><td>" + c.문항.length + "</td><td>" + (c.평균정답률 == null ? "–" : Math.round(c.평균정답률) + "%") + "</td><td>" + spark(c.회차별) + "</td></tr>";
       }).join("") + "</tbody></table></div></section>";
     var 후 = 리프.filter(function (c) { return c.비추천; });
-    h += 구획("학습 후순위(비추천) 단원") + '<section class="card"><div class="bd">' + (후.length ? 후.map(function (c) {
-      return '<div class="fixitem"><b>' + esc(c.이름) + '</b><div class="tiny">' + esc(c.비추천사유) + "</div></div>";
-    }).join("") : '<p class="sub">이 과목에는 후순위로 미룰 단원이 없습니다.</p>') + "</div></section>";
-    h += '<a class="btn wide" href="#/home" style="margin-top:20px">시작</a>';
-    $view.innerHTML = h;
+    if (후.length) h += 구획("학습 후순위 단원") + '<section class="card rows">' + 후.map(function (c) {
+      return 접힘('<span class="rt"><b>' + esc(c.이름) + '</b></span><span class="ar">›</span>', '<p class="why">' + esc(c.비추천사유) + "</p>", "rd");
+    }).join("") + "</section>";
+    $view.innerHTML = h; 접힘붙이기($view);
   }
 
   /* ── 화면: 법령반영 대장 ── */
   function 법령() {
     탭("fix");
     var L = M.법령;
-    var h = 머리({
-      kicker: "법령반영 · 제" + M.시험.회차 + "회 시험일 " + M.시험.일.replace(/-/g, ".") + " 기준",
-      h1: "현행 법령 <em>반영 대장</em>",
-      sub: "기준: 제" + M.시험.회차 + "회 시험일(" + M.시험.일.replace(/-/g, ".") + ") 현재 시행 법령 — 큐넷 공고 \"시험시행일 현재 시행되고 있는 법령\". 검토 " + L.검토 + "문항 중 <b>" + (L.판정["수정"] || 0) + "문항</b>을 고쳤고, " + (L.판정["폐기권고"] || 0) + "문항은 현행 법령으로 성립하지 않아 폐기를 권고합니다."
-    });
-    h += '<div class="stats" style="margin-top:24px">' + ["수정", "폐기권고", "유효", "판단보류"].map(function (k) { return '<div class="stat' + (k === "수정" ? " hot" : "") + '"><b>' + (L.판정[k] || 0) + "</b><span>" + k + "</span></div>"; }).join("") + "</div>";
-    h += 구획("과목별");
+    var h = 머리({ h1: "현행 법령 반영 대장" });
+    h += '<div class="stats">' + ["수정", "폐기권고", "유효", "판단보류"].map(function (k) { return '<div class="stat"><b>' + (L.판정[k] || 0) + "</b><span>" + k + "</span></div>"; }).join("") + "</div>";
+    h += 구획("과목별") + '<section class="card rows">';
     M.과목.forEach(function (s) {
       var n = L.과목별[s.코드] || 0;
       if (!n) return;
-      h += '<section class="card"><div class="hd"><h3>' + esc(s.이름) + '</h3><span class="tag law">' + n + '문항</span></div><div class="bd" id="fx-' + s.코드 + '"><button class="btn sm ghost" data-s="' + s.코드 + '">목록 펼치기</button></div></section>';
+      h += '<details class="rd" data-s="' + s.코드 + '"><summary class="rl"><span class="rt"><b>' + esc(s.이름) + '</b></span><span class="cnt">' + n + '문항</span><span class="ar">›</span></summary><div class="fxbody" id="fx-' + s.코드 + '"></div></details>';
     });
-    h += '<a class="btn wide" href="#/home" style="margin-top:20px">시작</a>';
+    h += "</section>";
     $view.innerHTML = h;
-    [].forEach.call($view.querySelectorAll("button[data-s]"), function (b) {
-      b.onclick = function () {
-        var code = b.getAttribute("data-s");
+    [].forEach.call($view.querySelectorAll("details[data-s]"), function (d) {
+      d.addEventListener("toggle", function () {
+        var code = d.getAttribute("data-s"), box = document.getElementById("fx-" + code);
+        if (!d.open || box.getAttribute("data-on")) return;
+        box.setAttribute("data-on", "1");
         과목문항(code, function (all) {
-          var box = document.getElementById("fx-" + code);
           box.innerHTML = all.filter(function (x) { return x.f; }).sort(function (a, b) { return b.r - a.r; }).map(function (x) {
             return '<div class="fixitem"><div class="row between"><span class="tiny">제' + x.r + "회 " + 차이름[x.c] + " " + esc(x.g) + " " + x.n + "번</span>" +
               '<a class="tiny" href="#/study/' + x.L + '">단원 가기</a></div><div>' + esc(x.f.요약 || "") + "</div>" +
@@ -1043,7 +1054,7 @@
               }).join("") + "</div>";
           }).join("");
         });
-      };
+      });
     });
   }
 
@@ -1056,18 +1067,24 @@
         return '<button type="button" data-v="' + x[0] + '" aria-pressed="' + (지금값 === x[0]) + '">' + x[1] + "</button>";
       }).join("") + "</div>";
     };
+    /* 자료 출처 — 화면에서 뺀 근거 글을 접어 둔다(있는 글을 옮기기만) */
+    var 출처 = 접힘("출처 보기", '<p>문항: 한국산업인력공단 큐넷 공개 기출문제(제27~36회, 공공누리 출처표시) · 정답: 큐넷 최종정답 · 법령: 법제처 국가법령정보 공동활용(' + M.시험.일.replace(/-/g, ".") + " 시행본) · 체감정답률: CBT 풀이 사이트 이용자 통계.</p>" +
+      "<p>기준: 제" + M.시험.회차 + "회 시험일(" + M.시험.일.replace(/-/g, ".") + ') 현재 시행 법령 — 큐넷 공고 "시험시행일 현재 시행되고 있는 법령".</p>' +
+      "<p>체감정답률 = CBT 풀이 사이트 이용자 정답률(제27~35회). 공식 통계가 아니라 단원끼리 비교하는 용도로만 씁니다.</p>" +
+      "<p>문항은 큐넷 공개 기출(공공누리 출처표시)이며, 법령이 바뀐 선지는 " + M.시험.일.replace(/-/g, ".") + " 시행 법령 기준으로 고쳐 실었습니다. 기록은 이 기기 브라우저에만 저장됩니다.</p>" +
+      M.과목.map(function (x) { return "<p><b>" + esc(x.이름) + "</b> " + x.문항수 + "문항을 단원으로 잘라 셌습니다. 한 문항이 두 단원에 걸리면 나눠 셉니다. " + esc(x.합격계산 || "") + "</p>"; }).join("") +
+      "<p>자료 생성 " + esc(M.생성) + "</p>", "src");
     var h = 머리({ h1: "설정" }) +
-      묶음("공부", "오늘 화면의 추천과 합격 지도에 이 차수의 과목만 나옵니다.", '<div id="zs-slot" style="margin-bottom:12px"></div>' +
-        칩("cha", [["all", "1·2차 동시"], ["1", "1차만"], ["2", "2차만"]], cha) +
+      묶음("공부", "", 칩("cha", [["all", "1·2차 동시"], ["1", "1차만"], ["2", "2차만"]], cha) +
         '<p class="shn" style="margin:16px 0 8px">하루 공부 시간</p>' +
-        칩("daymin", [["30", "30분"], ["60", "1시간"], ["90", "1시간 30분"], ["120", "2시간"], ["180", "3시간"], ["240", "4시간"]], String(하루분()))) +
-      묶음("화면 색", "내용은 같고 색과 글꼴만 바뀝니다.", 칩("skin", 옷들, skin)) +
+        칩("daymin", [["30", "30분"], ["60", "1시간"], ["90", "1시간 30분"], ["120", "2시간"], ["180", "3시간"], ["240", "4시간"]], String(하루분())) +
+        '<div class="rows in">' + 줄('<a class="rl" href="javascript:void 0" data-zs="1">', "합격 전략", "") + "</div>") +
+      묶음("화면 색", "", 칩("skin", 옷들, skin)) +
       묶음("기록", "기록은 이 브라우저에만 있습니다.", '<div class="row between"><p class="sub">푼 문항 <b>' + Object.keys(REC).length + '</b>개</p><button class="btn ghost sm" id="reset">기록 지우기</button></div>') +
       베타자리("settings") +
-      '<a class="btn wide" href="#/home" style="margin:4px 0 16px">시작</a>' +
-      묶음("자료 출처", "", '<p class="sub">문항: 한국산업인력공단 큐넷 공개 기출문제(제27~36회, 공공누리 출처표시) · 정답: 큐넷 최종정답 · 법령: 법제처 국가법령정보 공동활용(' + M.시험.일.replace(/-/g, ".") + " 시행본) · 체감정답률: CBT 풀이 사이트 이용자 통계.</p><p class=\"tiny\" style=\"margin-top:8px\">자료 생성 " + esc(M.생성) + "</p>");
-    $view.innerHTML = h;
-    if (window.ZZSTRAT) ZZSTRAT.button("junggae", "#zs-slot");
+      묶음("자료 출처", "", 출처);
+    $view.innerHTML = h; 접힘붙이기($view);
+    [].forEach.call($view.querySelectorAll("[data-zs]"), function (a) { a.addEventListener("click", function () { if (window.ZZSTRAT) ZZSTRAT.open("junggae"); }); });
     [].forEach.call($view.querySelectorAll("#skin button"), function (b) {
       b.onclick = function () { 옷입기(b.getAttribute("data-v")); 설정화면(); };
     });
@@ -1086,22 +1103,18 @@
   /* ── 화면: 합격 설계도 ── */
   function 설계도() {
     탭("home");
-    var h = 머리({
-      kicker: '<a href="#/home">오늘</a> · 합격 설계도',
-      h1: "과목마다 <em>40점</em>, 평균 <em>60점</em>",
-      sub: "과목마다 40점 이상, 평균 60점 이상이면 합격입니다. 과목마다 득점·방어·과락 방어 가운데 하나를 맡기고 목표 점수를 따로 잡았습니다."
-    }) + '<div id="zs-slot" style="margin-top:16px"></div>' +
-      '<section class="card" style="margin-top:24px"><div class="bd"><img src="전략/합격설계도.png?v=' + M.버전 + '" alt="합격 설계도" style="display:block;width:100%;border-radius:var(--r1)"></div></section>';
+    var h = 머리({ h1: "과목마다 40점, 평균 60점" }) +
+      '<section class="card rows" style="margin-top:16px">' + 줄('<a class="rl" href="javascript:void 0" data-zs="1">', "합격 전략", "") + "</section>" +
+      '<section class="card" style="margin-top:16px"><div class="bd"><img src="전략/합격설계도.png?v=' + M.버전 + '" alt="합격 설계도" style="display:block;width:100%;border-radius:12px"></div></section>';
     [1, 2].forEach(function (cha) {
       var ss = M.과목.filter(function (s) { return s.차 === cha && 교리[s.코드]; });
       h += 구획(차이름[cha]) + '<section class="card"><div class="bd">' + ss.map(function (s) {
         var g = 교리[s.코드];
-        return '<div class="fixitem"><div class="row between"><b>' + esc(s.이름) + '</b><span class="goal g-' + (g.역할 === "득점" ? "up" : g.역할 === "방어" ? "keep" : "cut") + '">목표 <b>' + g.목표 + "</b> · " + g.역할 + '</span></div><div class="tiny">' + esc(g.전술) + "</div></div>";
+        return '<div class="fixitem"><div class="row between"><b>' + esc(s.이름) + '</b><span class="goal">목표 <b>' + g.목표 + "</b> · " + g.역할 + '</span></div><div class="tiny">' + esc(g.전술) + "</div></div>";
       }).join("") + "</div></section>";
     });
-    h += '<p class="foot">오늘 화면은 득점 과목을 먼저 추천하고, 정답률이 목표에 가까워진 과목은 덜 추천합니다. 목표 점수는 제27~36회 기출을 세어서 잡았습니다.</p>';
     $view.innerHTML = h;
-    if (window.ZZSTRAT) ZZSTRAT.button("junggae", "#zs-slot");   /* 1020 합격전략 브리핑 다시 보기 */
+    [].forEach.call($view.querySelectorAll("[data-zs]"), function (a) { a.addEventListener("click", function () { if (window.ZZSTRAT) ZZSTRAT.open("junggae"); }); });
   }
 
   /* ── 길잡이 ── */
@@ -1134,10 +1147,39 @@
   });
   디데이();
   이동();
-  /* 화면표준 9절: 공용 합격전략 창(zzstrat.js)의 단추 글자 「합격전략」을 「합격 전략」으로 — 공용 파일은 그대로 두고 앱에서 글자만 바꾼다 */
+  /* 화면표준 9·14절: 공용 합격전략 창(zzstrat.js)은 파일을 그대로 두고 앱에서 글자와 색만 덮는다.
+     창은 열린 Shadow DOM 안이라 앱 css 가 안 닿는다 → 열릴 때 그 안에 덮개 style 하나를 넣는다(흰 바탕 · 포인트 색 · 회색) */
   (function(){
-    function 말(){ document.querySelectorAll(".zs-fab,.zs-btn").forEach(function(el){
-      var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false), n; while((n=w.nextNode())){ if(n.nodeValue.indexOf("합격전략")>=0) n.nodeValue=n.nodeValue.replace(/합격전략/g,"합격 전략"); } }); }
+    var P="#6D28D9", PI="#5B21B6", PS="rgba(109,40,217,.10)";
+    var 덮개=[
+      "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#E6E8EC;--zs-red:"+P+";--zs-blue:#9B79E8;--zs-gold:#7C818C;--zs-soft:#F1F3F6;--zs-tx:#111419;--zs-sub:#5F6670}",
+      "#zs .top .t{letter-spacing:0;font-size:13px}#zs .top button{border-radius:12px}",
+      "#zs section{border-radius:18px;box-shadow:none}",
+      "#zs .chip{border-radius:999px;background:#F1F3F6;color:#333941}#zs .chip.r{background:"+PS+";color:"+PI+"}",
+      "#zs .pk{border:1px solid #E6E8EC;border-radius:14px;background:#FFFFFF}#zs .pk.on{border-color:"+P+";background:"+PS+";box-shadow:none}",
+      "#zs .tg{border-radius:999px;font-size:11.5px}#zs .tg.a{background:"+P+";color:#fff}#zs .tg.l{background:rgba(109,40,217,.16);color:"+PI+";border:0}#zs .tg.g{background:#F1F3F6;color:#5F6670;border:0}",
+      "#zs .sc,#zs .sc.s,#zs .sc.d{border:1px solid #E6E8EC;border-radius:14px}#zs .sc.on{background:#FFFFFF}#zs .sc .rb{border-radius:999px}",
+      "#zs .sc.s .rb,#zs .sc.s .bar b{background:"+P+"}#zs .sc.d .rb,#zs .sc.d .bar b{background:#9B79E8}#zs .sc.b .bar b{background:#B4BAC3}",
+      "#zs .det{border-radius:14px}#zs .vl i{background:"+P+";border-radius:50%}",
+      "#zs .gauge .fl{background:rgba(109,40,217,.14)}#zs .stack i.s{background:"+P+"}#zs .stack i.d{background:#9B79E8}#zs .stack i.b{background:#B4BAC3}",
+      "#zs .gp b{background:"+P+";border-radius:12px}#zs .gp::after{background:"+P+"}#zs .gb .gline b{border-radius:12px}",
+      "#zs .gc .cd{border:1px solid #E6E8EC;border-radius:14px}",
+      "#zs .gc .cd:nth-child(1){--c:"+P+"!important}#zs .gc .cd:nth-child(2){--c:#8B5CF6!important}#zs .gc .cd:nth-child(3){--c:#A78BFA!important}#zs .gc .cd:nth-child(n+4){--c:#9CA3AF!important}",
+      "#zs .gc .cg{border-radius:999px}#zs .hit{border-radius:14px}",
+      "#zs .q li.a::before{background:"+P+";border-color:"+P+"}#zs .q .st.f{color:"+PI+";border-color:"+PI+"}#zs .q{border-radius:14px}",
+      "#zs .go{background:"+P+";border-radius:12px}#zst .nx{background:"+P+";border-radius:12px}#zst .hole{border-radius:14px}#zst .bub{border-radius:18px}",
+      "#zsy .nx{background:"+P+"}#zsy .pg i{background:"+P+"}#zsy .pk{border:1px solid #E6E8EC}#zsy .pk.on{border-color:"+P+";box-shadow:none}",
+      "#zsy .end button{border:1px solid "+P+";color:"+PI+"}#zsy .end .main{background:"+P+";color:#fff}"
+    ].join("\n");
+    function 글(root){ var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false), n; while((n=w.nextNode())){ if(n.nodeValue.indexOf("합격전략")>=0) n.nodeValue=n.nodeValue.replace(/합격전략/g,"합격 전략"); } }
+    function 말(){
+      document.querySelectorAll(".zs-fab,.zs-btn").forEach(function(el){ 글(el); });
+      var h=document.getElementById("zs-host");
+      if(h && h.shadowRoot){
+        if(!h.shadowRoot.getElementById("mj-ov")){ var st=document.createElement("style"); st.id="mj-ov"; st.textContent=덮개; h.shadowRoot.appendChild(st); }
+        글(h.shadowRoot);
+      }
+    }
     new MutationObserver(말).observe(document.documentElement,{childList:true,subtree:true}); 말();
   })();
 })();

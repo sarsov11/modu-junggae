@@ -50,10 +50,11 @@
     ".tm-nm{display:block;font-weight:700;font-size:14px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
     ".tm-av{display:block;font-weight:600;font-size:11.5px;line-height:1.2;color:#5F6670;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tm-first .tm-av{display:none}",
     ".tm-two .tm-nm,.tm-first .tm-nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:13.5px;line-height:1.22;word-break:keep-all;overflow-wrap:anywhere}",
-    ".tm-st{display:block;font-size:11px;line-height:1;letter-spacing:1px;color:#E2E8F0;margin-top:4px}.tm-st b{color:#F59E0B;font-weight:400}.tm-done .tm-st{color:rgba(255,255,255,.35)}.tm-done .tm-st b{color:#fff}",
+    ".tm-st{display:block;font-size:11px;line-height:1;letter-spacing:1px;color:#E2E8F0;margin-top:4px}.tm-st b{color:var(--p);font-weight:400}.tm-done .tm-st{color:rgba(255,255,255,.35)}.tm-done .tm-st b{color:#fff}.tm-done .tm-tier{box-shadow:0 0 0 1.5px rgba(255,255,255,.7) inset}",
     ".tm-pc{flex:none;font-weight:800;font-size:12.5px;line-height:1;color:var(--pi)}",
     ".tm-tier{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;font-weight:900;font-size:12px;line-height:1;color:#fff}",
-    ".tm-S{background:#FACC15;color:#111419}.tm-A{background:#E5202E}.tm-B{background:#2563EB}.tm-C{background:#4B5563}",
+    /* 등급 칩은 포인트 색 한 가지의 진하기로만 구분한다(11-10 대표님 「컬러가 일관성 없고 너저분」 → 노랑·빨강·파랑·회색 네 색을 버림) */
+    ".tm-S{background:var(--p);color:#fff}.tm-A{background:color-mix(in srgb,var(--p) 55%,#fff);color:#fff}.tm-B{background:color-mix(in srgb,var(--p) 18%,#fff);color:var(--pi)}.tm-C{background:#E9ECF0;color:#5F6670}",
     ".tm-t.tm-done{background:var(--p);color:#fff}.tm-t.tm-done .tm-pc{color:#fff;font-size:16px}.tm-t.tm-done .tm-av{color:rgba(255,255,255,.85)}",
     ".tm-t.tm-dim{opacity:.42}",
     ".tm-t.tm-rec{box-shadow:0 0 0 2px var(--p) inset}",
