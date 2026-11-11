@@ -24,18 +24,18 @@
 /* ── 흰 판(기본) — 통사 white 와 같은 바탕·선·글자 ── */
 :root,:root[data-skin="white"]{
   --bg:#FFFFFF; --bg-2:#FAFAFB; --surface:#FFFFFF; --surface-2:#F6F7F9; --surface-3:#EFF1F4;
-  --line:#E6E8EC; --line-2:#D3D7DD; --line-3:#B4BAC3;
-  --ink:#111419; --ink-2:#333941; --ink-3:#5A5F67; --ink-4:#5F6670;
+  --line:#DCE7E5; --line-2:#D3D7DD; --line-3:#B4BAC3;
+  --ink:#12302D; --ink-2:#333941; --ink-3:#5A5F67; --ink-4:#5F6670;
   --red:#E5202E; --red-2:#C8101D; --red-3:#A50C17; --red-soft:rgba(229,32,46,.07); --red-line:rgba(229,32,46,.40);
   /* 2026-11-10 브랜드 포인트 색 통일: 모두의 중개사 = 보라. --pt 가 포인트(주 단추·선택·진행·강조), --red 는 오답·경고로만 쓴다 */
-  --pt:#6D28D9; --pt-2:#5B21B6; --pt-soft:rgba(109,40,217,.10); --pt-line:rgba(109,40,217,.38);
-  --pt-ink:color-mix(in srgb,var(--pt) 78%,#111419);
+  --pt:#0F766E; --pt-2:#0B5F59; --pt-soft:rgba(15,118,110,.10); --pt-line:#7FB8B2;
+  --pt-ink:#0B4F4A;
   --cta:var(--pt); --cta-2:var(--pt-2); --cta-soft:var(--pt-soft); --cta-line:var(--pt-line);
   --ok:#0F7B5F; --ok-soft:rgba(15,123,95,.09); --ok-line:rgba(15,123,95,.40);
-  --amber:#B5791C; --amber-soft:rgba(181,121,28,.10);
-  --blue:#1E5FA8; --blue-soft:rgba(30,95,168,.08);
-  --law:#0E7490; --law-soft:rgba(14,116,144,.10); --law-line:rgba(14,116,144,.34);   /* 2026-11-10 포인트 색(보라)과 겹쳐 청록으로 */
-  --hl:rgba(250,204,21,.42);
+  --amber:#0B5F59; --amber-soft:rgba(15,118,110,.10);
+  --blue:#0F766E; --blue-soft:rgba(15,118,110,.08);
+  --law:#0B4F4A; --law-soft:rgba(15,118,110,.10); --law-line:#7FB8B2;   /* 2026-11-10 포인트 색(보라)과 겹쳐 청록으로 */
+  --hl:rgba(15,118,110,.18);
   --crop:#F4F4F6; --nav-bg:rgba(255,255,255,.92);
   --shadow:none; --shadow-2:0 12px 32px -18px rgba(17,20,25,.35);
   --r1:6px; --r2:10px; --r3:14px;
@@ -499,7 +499,7 @@ table.heatgrid tr.skip td,table.heatgrid tr.skip td:first-child{color:var(--ink-
 .dgwrap>.dg{flex:1;min-width:0;margin:0}
 
 /* 2026-11-10 색 통일 — 도식(.dg) 안의 강조색은 바꾸지 않는다(예전 빨강으로 고정). 첫 사용 안내(zzcoach.js)의 「다음」 단추는 포인트 색 */
-:root[data-skin="white"] .dg{--dg-key:#E5202E;--dg-key-soft:rgba(229,32,46,.08)}
+:root[data-skin="white"] .dg{--dg-key:#0F766E;--dg-key-soft:rgba(15,118,110,.08)}
 :root[data-skin="white"] #zzc .bub .go{background:var(--pt)}
 :root[data-skin="white"] #zzc .bub .dots i.on{background:var(--pt)}
 /* 합격전략 창(zzstrat.js, 공용 엔진 — 파일은 그대로)의 강조 빨강을 포인트 색으로 덮는다. 등급 막대 색은 그대로 */
@@ -642,11 +642,11 @@ body.has-tqbar{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 .qcard{border:0;box-shadow:none;background:none;border-radius:0;margin:0!important}
 .qcard .bd{padding:0}
 .qmeta{margin-bottom:12px}
-.stem{font-size:20px;line-height:30px;font-weight:600;letter-spacing:-.5px;color:#111827;margin:0 0 22px}
+.stem{font-size:20px;line-height:30px;font-weight:600;letter-spacing:-.5px;color:#12302D;margin:0 0 22px}
 .picks{gap:10px}
-.pick{border:0;background:none;box-shadow:none;padding:0;min-height:0;border-radius:0;align-items:flex-start;gap:10px;color:#334155;font-size:16px;line-height:30px;font-weight:500;letter-spacing:-.5px}
-.pick:hover{border:0;color:#334155}
-.pick .n{flex:none;width:30px;height:30px;border-radius:30px;border:1px solid #94A3B8;display:grid;place-items:center;font-size:16px;line-height:1;font-weight:500;color:#334155;background:#fff}
+.pick{border:0;background:none;box-shadow:none;padding:0;min-height:0;border-radius:0;align-items:flex-start;gap:10px;color:#2E4A47;font-size:16px;line-height:30px;font-weight:500;letter-spacing:-.5px}
+.pick:hover{border:0;color:#2E4A47}
+.pick .n{flex:none;width:30px;height:30px;border-radius:30px;border:1px solid #8FB0AC;display:grid;place-items:center;font-size:16px;line-height:1;font-weight:500;color:#2E4A47;background:#fff}
 .pick:hover .n{border-color:var(--pt)}
 .pick[data-s="pick"]{background:none;color:var(--pt-ink)} .pick[data-s="pick"] .n{border-color:var(--pt);color:var(--pt)}
 .pick[data-s="ok"],.pick[data-s="ans"]{border:0;background:none;color:#0F7B4F;font-weight:700} .pick[data-s="ok"] .n,.pick[data-s="ans"] .n{border-color:#16B364;background:#16B364;color:#fff}
@@ -931,3 +931,16 @@ html body .tq-tier{font-weight:800}
 html body .dg .dg-n,html body .dg .dg-kn,html body .dg .dg-ch,html body .dg .dg-rn,html body .dg .dg-root,html body .dg .dg-term{font-weight:800}
 html body .data{margin:0 0 22px;background:var(--surface-2)}
 html body .dg b,html body .dg .dg-vsb,html body .dg .dg-arr{font-weight:800}
+
+/* ═══ 2026-11-11 청록 단일톤(대표님 「다 청록색으로 통일」 · 화면표준 16절) — 색은 청록 하나, 구분은 진하기로만. 정답 초록 · 오답 빨강만 남긴다 ═══ */
+html:root,html:root[data-skin="white"]{--pt:#0F766E;--pt-2:#0B5F59;--pt-soft:rgba(15,118,110,.10);--pt-line:#7FB8B2;--pt-ink:#0B4F4A;
+  --cta:#0F766E;--cta-2:#0B5F59;--cta-soft:rgba(15,118,110,.10);--cta-line:#7FB8B2;
+  --ink:#12302D;--line:#DCE7E5;
+  --tq-ink:#12302D;--tq-ink2:#2E4A47;--tq-sub:#4A615F;--tq-line:#DCE7E5;--tq-fill:#EEF5F4}
+html:root .tm{color:var(--ink)}
+html:root .tm-t.tm-on{box-shadow:0 0 0 3px #0B4F4A inset}
+html:root .tm-dt .tm-t.tm-on{background:#0B4F4A}
+html:root .tq-badge,html:root .tq-coach p,html:root .tq-tool{color:#3F5A57}
+html:root .tq-meta .tq-no,html:root .tq-icon,html:root .tq-tabs button{color:#5A7370}
+/* 개념 화면 단계 줄 사이 화살표(↓) 글자 상자가 18px 칸 위아래로 1~2px 삐져 앞뒤 단계 상자와 14px² 겹쳤다 — 칸에 여백을 준다 */
+html:root .dg-flow li.dg-arr{padding:3px 0;line-height:1.2}

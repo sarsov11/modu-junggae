@@ -1150,21 +1150,21 @@
   /* 화면표준 9·14절: 공용 합격전략 창(zzstrat.js)은 파일을 그대로 두고 앱에서 글자와 색만 덮는다.
      창은 열린 Shadow DOM 안이라 앱 css 가 안 닿는다 → 열릴 때 그 안에 덮개 style 하나를 넣는다(흰 바탕 · 포인트 색 · 회색) */
   (function(){
-    var P="#6D28D9", PI="#5B21B6", PS="rgba(109,40,217,.10)";
+    var P="#0F766E", PI="#0B4F4A", PS="rgba(15,118,110,.10)";
     var 덮개=[
-      "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#E6E8EC;--zs-red:"+P+";--zs-blue:#9B79E8;--zs-gold:#7C818C;--zs-soft:#F1F3F6;--zs-tx:#111419;--zs-sub:#5F6670}",
+      "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#DCE7E5;--zs-red:"+P+";--zs-blue:#4E9A93;--zs-gold:#7C818C;--zs-soft:#F1F3F6;--zs-tx:#12302D;--zs-sub:#5F6670}",
       "#zs .top .t{letter-spacing:0;font-size:13px}#zs .top button{border-radius:12px}",
       "#zs section{border-radius:18px;box-shadow:none}",
       "#zs .chip{border-radius:999px;background:#F1F3F6;color:#333941}#zs .chip.r{background:"+PS+";color:"+PI+"}",
       "#zs .pk{border:1px solid #E6E8EC;border-radius:14px;background:#FFFFFF}#zs .pk.on{border-color:"+P+";background:"+PS+";box-shadow:none}",
-      "#zs .tg{border-radius:999px;font-size:11.5px}#zs .tg.a{background:"+P+";color:#fff}#zs .tg.l{background:rgba(109,40,217,.16);color:"+PI+";border:0}#zs .tg.g{background:#F1F3F6;color:#5F6670;border:0}",
+      "#zs .tg{border-radius:999px;font-size:11.5px}#zs .tg.a{background:"+P+";color:#fff}#zs .tg.l{background:rgba(15,118,110,.16);color:"+PI+";border:0}#zs .tg.g{background:#F1F3F6;color:#5F6670;border:0}",
       "#zs .sc,#zs .sc.s,#zs .sc.d{border:1px solid #E6E8EC;border-radius:14px}#zs .sc.on{background:#FFFFFF}#zs .sc .rb{border-radius:999px}",
-      "#zs .sc.s .rb,#zs .sc.s .bar b{background:"+P+"}#zs .sc.d .rb,#zs .sc.d .bar b{background:#9B79E8}#zs .sc.b .bar b{background:#B4BAC3}",
+      "#zs .sc.s .rb,#zs .sc.s .bar b{background:"+P+"}#zs .sc.d .rb,#zs .sc.d .bar b{background:#4E9A93}#zs .sc.b .bar b{background:#B4BAC3}",
       "#zs .det{border-radius:14px}#zs .vl i{background:"+P+";border-radius:50%}",
-      "#zs .gauge .fl{background:rgba(109,40,217,.14)}#zs .stack i.s{background:"+P+"}#zs .stack i.d{background:#9B79E8}#zs .stack i.b{background:#B4BAC3}",
+      "#zs .gauge .fl{background:rgba(15,118,110,.14)}#zs .stack i.s{background:"+P+"}#zs .stack i.d{background:#4E9A93}#zs .stack i.b{background:#B4BAC3}",
       "#zs .gp b{background:"+P+";border-radius:12px}#zs .gp::after{background:"+P+"}#zs .gb .gline b{border-radius:12px}",
       "#zs .gc .cd{border:1px solid #E6E8EC;border-radius:14px}",
-      "#zs .gc .cd:nth-child(1){--c:"+P+"!important}#zs .gc .cd:nth-child(2){--c:#8B5CF6!important}#zs .gc .cd:nth-child(3){--c:#A78BFA!important}#zs .gc .cd:nth-child(n+4){--c:#9CA3AF!important}",
+      "#zs .gc .cd:nth-child(1){--c:"+P+"!important}#zs .gc .cd:nth-child(2){--c:#3A8A83!important}#zs .gc .cd:nth-child(3){--c:#8CC4BE!important}#zs .gc .cd:nth-child(n+4){--c:#9CA3AF!important}",
       "#zs .gc .cg{border-radius:999px}#zs .hit{border-radius:14px}",
       "#zs .q li.a::before{background:"+P+";border-color:"+P+"}#zs .q .st.f{color:"+PI+";border-color:"+PI+"}#zs .q{border-radius:14px}",
       "#zs .go{background:"+P+";border-radius:12px}#zst .nx{background:"+P+";border-radius:12px}#zst .hole{border-radius:14px}#zst .bub{border-radius:18px}",
