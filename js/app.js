@@ -221,7 +221,7 @@
       if (p && !p.__o) { p.__o = 1; new MutationObserver(맞춤).observe(p, { attributes: true, attributeFilter: ["class"] }); 맞춤(); }
     }).observe(document.body, { childList: true });
   }
-  /* ── 문제 화면 공용 부품(tera-q.js?v=1111g · tera-q.css · tera-pad.js) 조각 ── */
+  /* ── 문제 화면 공용 부품(tera-q.js?v=1112b · tera-q.css · tera-pad.js) 조각 ── */
   var 아이콘 = {
     book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 6.5C10.2 5 7.6 4.5 4.5 4.8v13c3.1-.3 5.7.2 7.5 1.7 1.8-1.5 4.4-2 7.5-1.7v-13c-3.1-.3-5.7.2-7.5 1.7zM12 6.5v13"/></svg>',
     pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19.5l1-4L16 5l3 3L8.5 18.5z"/></svg>',
