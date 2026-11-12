@@ -29,6 +29,8 @@
   var 장면들 = {};
   function 열쇠(t){ return 맨글(t).replace(조괄호,"").replace(/\s+/g,""); }
   function 단추(t){ var k=열쇠(t); return 장면들[k] ? '<button type="button" class="sc-btn" data-sc="'+esc(k)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" style="fill:none;stroke:#fff;stroke-width:2.2"/><path d="M6.5 16l3.5-4.5 3 3.5 2-2 2.5 3z"/></svg>그림</button>' : ""; }
+  /* 비교표 첫 열 낱말은 뜻 단위(구역 · 지역 · 지구 끝말 앞, 가운뎃점 뒤)에서만 꺾이게 한다 (11-12) */
+  function 끊기(h){ return String(h).replace(/(<[^>]*>)|([^<]+)/g, function (m, tag, txt) { return tag ? tag : txt.replace(/·/g, "·<wbr>").replace(/(구역|지역|지구|시설|계획|주택|묘지|주거|가산세|까지)/g, "<wbr>$1"); }); }
   function 칸(t){ var 원=String(t==null?"":t).split(" · "), 줄=b(t).split(" · ");
     if(원.length!==줄.length) 원=[String(t==null?"":t)];
     return 줄.length>1 ? 줄.map(function(l,n){ return '<span class="dg-ln">'+l+단추(원[n])+'</span>'; }).join("") : 줄[0]+단추(원[0]); }
@@ -110,7 +112,7 @@
           return '<div class="dg-ri"><div class="dg-rn">'+b(r[0])+'</div><div class="dg-rv">'+칸(r[1])+'</div></div>'; }).join("")+'</div>';
       return '<div class="dg dg-table">'+제목(x.title)+'<div class="dg-tw"><table>'+
         ((x.head&&x.head.length)?'<thead><tr>'+x.head.map(function(h){ return '<th>'+칸(h)+'</th>'; }).join("")+'</tr></thead>':'')+
-        '<tbody>'+(x.rows||[]).map(function(r){ return '<tr>'+r.map(function(c,n){ return (n===0&&x.head&&x.head.length?'<th>':'<td>')+칸(c)+(n===0&&x.head&&x.head.length?'</th>':'</td>'); }).join("")+'</tr>'; }).join("")+'</tbody></table></div></div>';
+        '<tbody>'+(x.rows||[]).map(function(r){ return '<tr>'+r.map(function(c,n){ return (n===0&&x.head&&x.head.length?'<th>'+끊기(칸(c)):'<td>'+칸(c))+(n===0&&x.head&&x.head.length?'</th>':'</td>'); }).join("")+'</tr>'; }).join("")+'</tbody></table></div></div>';
     }
   };
 

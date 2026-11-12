@@ -89,8 +89,8 @@
     if (t === "비유") return '<div class="tip"><span class="ti">비유 팁</span><div>' + esc(b.글) + "</div></div>";
     if (t === "참고") return '<div class="ref"><span class="rt">참고</span><div>' + esc(b.글) + "</div></div>";
     if (t === "비교") return '<div class="cmp"><div class="cmp-h">' + esc(b.제목 || "한 번에 비교") + '</div><div class="tblwrap"><table><tr>' +
-      (b.머리 || []).map(function (x) { return "<th>" + esc(x) + "</th>"; }).join("") + "</tr>" +
-      (b.행 || []).map(function (r) { return "<tr>" + r.map(function (x) { return "<td>" + esc(x) + "</td>"; }).join("") + "</tr>"; }).join("") +
+      (b.머리 || []).map(function (x, i) { return "<th>" + (i === 0 ? 끊기(esc(x)) : esc(x)) + "</th>"; }).join("") + "</tr>" +
+      (b.행 || []).map(function (r) { return "<tr>" + r.map(function (x, i) { return "<td>" + (i === 0 ? 끊기(esc(x)) : esc(x)) + "</td>"; }).join("") + "</tr>"; }).join("") +
       "</table></div>" + (b.결론 ? '<div class="one">' + esc(b.결론) + "</div>" : "") + "</div>";
     if (t === "구조") return '<div class="tree"><div class="tr-root">' + esc(b.제목) + '</div><div class="tr-kids">' +
       (b.갈래 || []).map(function (g) { return '<div class="tr-g"><b>' + esc(g.이름) + "</b>" + (g.항목 || []).map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div>"; }).join("") +
@@ -172,6 +172,8 @@
   }
 
   /* ── 유틸 ── */
+  /* 비교표 첫 열 낱말은 뜻 단위(구역 · 지역 · 지구 끝말 앞, 가운뎃점 뒤)에서만 꺾이게 한다 (11-12) */
+  function 끊기(h) { return String(h).replace(/(<[^>]*>)|([^<]+)/g, function (m, tag, txt) { return tag ? tag : txt.replace(/·/g, "·<wbr>").replace(/(구역|지역|지구|시설|계획|주택|묘지|주거|가산세|까지)/g, "<wbr>$1"); }); }
   function esc(t) { return String(t == null ? "" : t).replace(/[&<>"]/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]; }); }
   function pct(x, d) { return (x == null ? "–" : (Math.round(x * Math.pow(10, d || 0)) / Math.pow(10, d || 0)) + "%"); }
   function 디데이() {

@@ -952,3 +952,16 @@ html body .cmp th,html body .cmp td,html body .dg-table th,html body .dg-table t
 .jo .ln{display:inline-block;margin:0 6px 2px 0;line-height:1.5;vertical-align:baseline;white-space:nowrap}
 html body .dg-law{white-space:normal;max-width:100%;line-height:1.5;margin:2px 0 2px 4px;vertical-align:baseline}
 html body .dg-laws{white-space:normal}
+
+/* 11-12 개념 화면 비교표 첫 열 — 폰 폭에서 낱말이 중간에서 꺾이던 것. 첫 열 폭을 키우고, 낱말은 뜻 단위에서만 꺾는다 */
+html body .cmp th:first-child,html body .cmp td:first-child,html body .dg-table th:first-child,html body .dg-table td:first-child{word-break:keep-all;overflow-wrap:break-word;width:7.8em}
+@media(max-width:520px){
+  html body .cmp table,html body .dg-table table{table-layout:fixed;width:100%}
+  html body .cmp th:first-child,html body .cmp td:first-child,html body .dg-table th:first-child,html body .dg-table td:first-child{width:34%;padding-left:6px;padding-right:6px;white-space:normal}
+  html body .cmp table:not(:has(tr>:nth-child(3))) th:first-child,html body .cmp table:not(:has(tr>:nth-child(3))) td:first-child{width:38%}
+  html body .cmp table:has(tr>:nth-child(4)) th:first-child,html body .cmp table:has(tr>:nth-child(4)) td:first-child,html body .dg-table table:has(tr>:nth-child(4)) th:first-child,html body .dg-table table:has(tr>:nth-child(4)) td:first-child{width:31%}
+  html body .cmp table:has(tr>:nth-child(5)) th:first-child,html body .cmp table:has(tr>:nth-child(5)) td:first-child,html body .dg-table table:has(tr>:nth-child(5)) th:first-child,html body .dg-table table:has(tr>:nth-child(5)) td:first-child{width:27%}
+}
+/* 11-12 아래 탭: 켜진 탭만 청록 #0F766E, 꺼진 탭은 회색 #5F6670 */
+html body .navlinks a{color:#5F6670}
+html body .navlinks a.on{color:#0F766E}
