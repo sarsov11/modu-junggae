@@ -1082,7 +1082,7 @@
         칩("daymin", [["30", "30분"], ["60", "1시간"], ["90", "1시간 30분"], ["120", "2시간"], ["180", "3시간"], ["240", "4시간"]], String(하루분())) +
         '<div class="rows in">' + 줄('<a class="rl" href="javascript:void 0" data-zs="1">', "합격 전략", "") + "</div>") +
       묶음("화면 색", "", 칩("skin", 옷들, skin)) +
-      묶음("기록", "기록은 이 브라우저에만 있습니다.", '<div class="row between"><p class="sub">푼 문항 <b>' + Object.keys(REC).length + '</b>개</p><button class="btn ghost sm" id="reset">기록 지우기</button></div>') +
+      묶음("기록", "로그인하지 않으면 기록은 이 기기에만 남습니다.", '<div class="row between"><p class="sub">푼 문항 <b>' + Object.keys(REC).length + '</b>개</p><button class="btn ghost sm" id="reset">기록 지우기</button></div>') +
       베타자리("settings") +
       묶음("자료 출처", "", 출처);
     $view.innerHTML = h; 접힘붙이기($view);
