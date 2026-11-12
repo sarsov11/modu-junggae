@@ -24,8 +24,8 @@
 /* ── 흰 판(기본) — 통사 white 와 같은 바탕·선·글자 ── */
 :root,:root[data-skin="white"]{
   --bg:#FFFFFF; --bg-2:#FAFAFB; --surface:#FFFFFF; --surface-2:#F6F7F9; --surface-3:#EFF1F4;
-  --line:#DCE7E5; --line-2:#D3D7DD; --line-3:#B4BAC3;
-  --ink:#12302D; --ink-2:#333941; --ink-3:#5A5F67; --ink-4:#5F6670;
+  --line:#E5E7EB; --line-2:#D3D7DD; --line-3:#B4BAC3;
+  --ink:#111419; --ink-2:#333941; --ink-3:#5A5F67; --ink-4:#5F6670;
   --red:#E5202E; --red-2:#C8101D; --red-3:#A50C17; --red-soft:rgba(229,32,46,.07); --red-line:rgba(229,32,46,.40);
   /* 2026-11-10 브랜드 포인트 색 통일: 모두의 중개사 = 보라. --pt 가 포인트(주 단추·선택·진행·강조), --red 는 오답·경고로만 쓴다 */
   --pt:#0F766E; --pt-2:#0B5F59; --pt-soft:rgba(15,118,110,.10); --pt-line:#7FB8B2;
@@ -78,7 +78,7 @@
 html{scroll-behavior:smooth;scroll-padding-top:calc(var(--hh) + 24px)}
 html,body{overflow-x:clip}   /* ⚠ hidden 이면 body 가 스크롤 상자가 되어 sticky 머리띠가 안 붙는다 */
 body{margin:0;background:var(--bg);background-image:var(--paper);background-size:var(--paper-size);background-attachment:fixed;
-  color:var(--ink-2);font-family:var(--kr);font-size:16px;line-height:1.68;font-weight:500;
+  color:var(--ink);font-family:var(--kr);font-size:16px;line-height:1.68;font-weight:500;
   -webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;word-break:keep-all}
 h1,h2,h3,h4,h5{margin:0;color:var(--ink);font-family:var(--title);font-weight:900;letter-spacing:-.04em;line-height:1.2;text-wrap:balance}
 p{margin:0}
@@ -642,11 +642,11 @@ body.has-tqbar{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
 .qcard{border:0;box-shadow:none;background:none;border-radius:0;margin:0!important}
 .qcard .bd{padding:0}
 .qmeta{margin-bottom:12px}
-.stem{font-size:20px;line-height:30px;font-weight:600;letter-spacing:-.5px;color:#12302D;margin:0 0 22px}
+.stem{font-size:20px;line-height:30px;font-weight:600;letter-spacing:-.5px;color:#111419;margin:0 0 22px}
 .picks{gap:10px}
-.pick{border:0;background:none;box-shadow:none;padding:0;min-height:0;border-radius:0;align-items:flex-start;gap:10px;color:#2E4A47;font-size:16px;line-height:30px;font-weight:500;letter-spacing:-.5px}
-.pick:hover{border:0;color:#2E4A47}
-.pick .n{flex:none;width:30px;height:30px;border-radius:30px;border:1px solid #8FB0AC;display:grid;place-items:center;font-size:16px;line-height:1;font-weight:500;color:#2E4A47;background:#fff}
+.pick{border:0;background:none;box-shadow:none;padding:0;min-height:0;border-radius:0;align-items:flex-start;gap:10px;color:#333941;font-size:16px;line-height:30px;font-weight:500;letter-spacing:-.5px}
+.pick:hover{border:0;color:#333941}
+.pick .n{flex:none;width:30px;height:30px;border-radius:30px;border:1px solid #8FB0AC;display:grid;place-items:center;font-size:16px;line-height:1;font-weight:500;color:#333941;background:#fff}
 .pick:hover .n{border-color:var(--pt)}
 .pick[data-s="pick"]{background:none;color:var(--pt-ink)} .pick[data-s="pick"] .n{border-color:var(--pt);color:var(--pt)}
 .pick[data-s="ok"],.pick[data-s="ans"]{border:0;background:none;color:#0F7B4F;font-weight:700} .pick[data-s="ok"] .n,.pick[data-s="ans"] .n{border-color:#16B364;background:#16B364;color:#fff}
@@ -809,9 +809,9 @@ table.heatgrid td a:hover{color:var(--pt-ink)}
 .mx-ox li>b{font-size:13px;border-radius:50%}
 .mx-o{background:var(--pt)}.mx-x{background:var(--ink-3)}.mx-n{background:var(--ink-4)}
 .mx-law{border-left:3px solid var(--pt);background:none;border-radius:0}
-.mx-law b{color:var(--pt-ink)}
+.mx-law b{color:var(--ink)}
 .mx-box{border:1px solid var(--l1);border-radius:14px;background:var(--surface)}
-.mx-box h4{color:var(--pt-ink)}
+.mx-box h4{color:var(--ink)}
 .mx-tw table{font-size:13px}
 .mx-tw thead th{background:var(--pt);color:#fff}
 .mx-flow li{border-color:var(--l1);border-radius:14px}
@@ -935,12 +935,20 @@ html body .dg b,html body .dg .dg-vsb,html body .dg .dg-arr{font-weight:800}
 /* ═══ 2026-11-11 청록 단일톤(대표님 「다 청록색으로 통일」 · 화면표준 16절) — 색은 청록 하나, 구분은 진하기로만. 정답 초록 · 오답 빨강만 남긴다 ═══ */
 html:root,html:root[data-skin="white"]{--pt:#0F766E;--pt-2:#0B5F59;--pt-soft:rgba(15,118,110,.10);--pt-line:#7FB8B2;--pt-ink:#0B4F4A;
   --cta:#0F766E;--cta-2:#0B5F59;--cta-soft:rgba(15,118,110,.10);--cta-line:#7FB8B2;
-  --ink:#12302D;--line:#DCE7E5;
-  --tq-ink:#12302D;--tq-ink2:#2E4A47;--tq-sub:#4A615F;--tq-line:#DCE7E5;--tq-fill:#EEF5F4}
+  --ink:#111419;--line:#E5E7EB;
+  --tq-ink:#111419;--tq-ink2:#333941;--tq-sub:#5F6670;--tq-line:#E5E7EB;--tq-fill:#EEF5F4}
 html:root .tm{color:var(--ink)}
 html:root .tm-t.tm-on{box-shadow:0 0 0 3px #0B4F4A inset}
 html:root .tm-dt .tm-t.tm-on{background:#0B4F4A}
-html:root .tq-badge,html:root .tq-coach p,html:root .tq-tool{color:#3F5A57}
-html:root .tq-meta .tq-no,html:root .tq-icon,html:root .tq-tabs button{color:#5A7370}
+html:root .tq-badge,html:root .tq-coach p,html:root .tq-tool{color:#333941}
+html:root .tq-meta .tq-no,html:root .tq-icon,html:root .tq-tabs button{color:#5F6670}
 /* 개념 화면 단계 줄 사이 화살표(↓) 글자 상자가 18px 칸 위아래로 1~2px 삐져 앞뒤 단계 상자와 14px² 겹쳤다 — 칸에 여백을 준다 */
 html:root .dg-flow li.dg-arr{padding:3px 0;line-height:1.2}
+/* 11-12 개념 화면 비교표는 칸 폭에 맞춰 줄바꿈 · 법조문 딱지는 줄바꿈을 허용하고 옆 글자와 간격을 둔다 */
+html body .cmp th,html body .cmp td,html body .dg-table th,html body .dg-table td{overflow-wrap:anywhere}
+.cmp table,.dg-table table{max-width:100%}
+.tblwrap,.dg-tw{max-width:100%;overflow-x:auto}
+.jo{overflow-wrap:anywhere}
+.jo .ln{display:inline-block;margin:0 6px 2px 0;line-height:1.5;vertical-align:baseline;white-space:nowrap}
+html body .dg-law{white-space:normal;max-width:100%;line-height:1.5;margin:2px 0 2px 4px;vertical-align:baseline}
+html body .dg-laws{white-space:normal}

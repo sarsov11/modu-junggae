@@ -285,7 +285,7 @@
 
   /* ── 옷 — 테라러닝 공통 셋: 흰 판(기본) · 종이 · 밤 ── */
   var 옷들 = [["white", "흰색"], ["paper", "종이색"], ["night", "어두운색"]];
-  var 옷색 = { white: "#FFFFFF", paper: "#FAF8F3", night: "#08090B" };
+  var 옷색 = { white: "#0F766E", paper: "#FAF8F3", night: "#08090B" };
   function 옷입기(v) {
     if (!옷색[v]) v = "white";
     document.documentElement.setAttribute("data-skin", v);
@@ -1152,7 +1152,7 @@
   (function(){
     var P="#0F766E", PI="#0B4F4A", PS="rgba(15,118,110,.10)";
     var 덮개=[
-      "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#DCE7E5;--zs-red:"+P+";--zs-blue:#4E9A93;--zs-gold:#7C818C;--zs-soft:#F1F3F6;--zs-tx:#12302D;--zs-sub:#5F6670}",
+      "#zs,#zst,#zsy{--zs-bg:#FFFFFF;--zs-card:#FFFFFF;--zs-line:#E5E7EB;--zs-red:"+P+";--zs-blue:#4E9A93;--zs-gold:#7C818C;--zs-soft:#F1F3F6;--zs-tx:#111419;--zs-sub:#5F6670}",
       "#zs .top .t{letter-spacing:0;font-size:13px}#zs .top button{border-radius:12px}",
       "#zs section{border-radius:18px;box-shadow:none}",
       "#zs .chip{border-radius:999px;background:#F1F3F6;color:#333941}#zs .chip.r{background:"+PS+";color:"+PI+"}",
